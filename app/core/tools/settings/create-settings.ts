@@ -34,7 +34,7 @@ export class CreateSettings<T extends AnyObj = AnyObj> {
   }
 
   /** 获取全部配置 */
-  get(): Partial<T>
+  get(): Required<T>
   /** 通过 key 获取单个配置 */
   get<K extends keyof T>(key: K): T[K]
   /** 通过 key 获取单个配置 */

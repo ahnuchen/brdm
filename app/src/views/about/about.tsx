@@ -7,7 +7,15 @@ export default class About extends React.Component<PageProps> {
   render(): JSX.Element {
     return (
       <div className="about flex column center" style={{ height: '100%' }}>
-        <img src={$tools.APP_ICON} width="88" />
+        <a
+          onClick={() => {
+            $tools.$bus.emit($tools.EventTypes.EasterEgg)
+            shell.openExternal('https://github.com/ahnuchen/brdm')
+          }}
+        >
+          <img src={$tools.APP_ICON} width="88" />
+        </a>
+
         <h2 style={{ marginTop: 8 }}>{$tools.APP_NAME}</h2>
         <p className="fs-12" style={{ margin: 4 }}>
           Version {$tools.APP_VERSION}
