@@ -1,8 +1,9 @@
 import * as React from 'react'
 import { useEffect } from 'react'
-import { Badge, Button, Card, Modal } from 'antd'
+import { Badge, Button, Card, Modal, message } from 'antd'
 import { useDispatch, useSelector } from 'react-redux'
 import { decrement, increment } from '@/core/redux/actions/counter'
+import { i18n } from '@/src/i18n/i18n'
 
 export default (): JSX.Element => {
   const dispatch = useDispatch()
@@ -36,6 +37,20 @@ export default (): JSX.Element => {
       ))}
       <Button onClick={minusCount} type="primary">
         减少
+      </Button>
+      <Button
+        onClick={() => {
+          message.success(i18n.$t('add_failed'))
+        }}
+      >
+        测试多语言
+      </Button>
+      <Button
+        onClick={() => {
+          $tools.settings.appSettings.set('lang', 'en')
+        }}
+      >
+        设置英文
       </Button>
     </Card>
   )
