@@ -23,7 +23,7 @@ app.on('second-instance', () => {
 app.on('ready', () => {
   tray = creatAppTray()
   $tools.createWindow('Home')
-  //TODO 暂时先隐藏,开发时热更新导致这个tray会越来越多
+  //TODO 暂时先不要tray隐藏,开发时热更新导致这个tray会越来越多
   tray.destroy()
 })
 

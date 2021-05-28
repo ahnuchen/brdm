@@ -26,6 +26,8 @@ npm run dev
 - typescript
 - eslint
 - prettier
+- ahooks
+- ioredis
 
 ## DevTools
 
