@@ -10,8 +10,12 @@ declare global {
   interface ConnectionConfig extends RedisOptions {
     name?: string
     key?: string
-    sslOptions: SSHOptions
+    sslOptions?: SSHOptions
     cluster?: boolean
     connectionName?: string
+    separator?: string
+    SSHTunnel?: boolean
+    SSLTunnel?: boolean
+    clusterMode?: boolean
   }
 }

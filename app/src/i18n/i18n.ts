@@ -19,7 +19,6 @@ import pt from './langs/pt'
 import de from './langs/de'
 import fr from './langs/fr'
 import ua from './langs/ua'
-import { Locale } from 'antd/es/locale-provider'
 
 const messages = {
   en: {
@@ -69,7 +68,6 @@ Object.keys(messages).map((lang) => {
 })
 
 const currentLocale = $tools.settings.appSettings.get('lang') || 'cn'
-
 intl.init({
   locales,
   currentLocale,
@@ -82,7 +80,6 @@ const i18n = {
     return intl.get(key)
   },
 }
-
-const antdLocale: Locale = messages[currentLocale].antdLocal
+const { antdLocale } = messages[currentLocale]
 
 export { i18n, antdLocale }
