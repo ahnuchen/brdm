@@ -1,16 +1,15 @@
 import { ConnectionSettings } from '@/core/tools/settings/connection-settings'
-import { connSettings } from '@/core/tools/settings/connection-settings'
-
-const conn = connSettings
+import { omit } from './utils'
 
 class Storage {
   addConnection(connection: ConnectionConfig): void {
     this.editConnectionByKey(connection, '')
   }
+
   getConnections(returnList?: false | undefined): ConnectionSettings
   getConnections(returnList: true): ConnectionConfig[]
   getConnections(returnList = false) {
-    const connections = conn.get() || {}
+    const connections = $tools.settings.connSettings.get() || {}
 
     if (returnList) {
       const conns: ConnectionConfig[] = Object.keys(connections).map((key) => connections[key])
@@ -20,19 +19,19 @@ class Storage {
 
     return connections
   }
+
   editConnectionByKey(connection: ConnectionConfig, oldKey = ''): void {
     const editedKey = connection.key || oldKey
 
+    debugger
     const connections = this.getConnections()
-    delete connections[editedKey]
-
-    this.updateConnectionName(connection, connections)
+    this.updateConnectionName(connection, omit(connections, editedKey))
     const newKey = this.getConnectionKey(connection, true)
     connection.key = newKey
-
     connections[newKey] = connection
     this.setConnections(connections)
   }
+
   editConnectionItem(connection: ConnectionConfig, items: Partial<ConnectionConfig> = {}): void {
     const key = this.getConnectionKey(connection)
     const connections = this.getConnections()
@@ -44,6 +43,7 @@ class Storage {
     Object.assign(connections[key], items)
     this.setConnections(connections)
   }
+
   updateConnectionName(connection: ConnectionConfig, connections: ConnectionSettings): void {
     let name = this.getConnectionName(connection)
 
@@ -59,20 +59,23 @@ class Storage {
 
     connection.name = name
   }
+
   getConnectionName(connection: ConnectionConfig) {
     return connection.name || `${connection.host}@${connection.port}`
   }
+
   setConnections(connections: ConnectionSettings): void {
-    conn.set(connections)
+    $tools.settings.connSettings.setAll(connections)
   }
+
   deleteConnection(connection: ConnectionConfig) {
     const connections = this.getConnections()
     const key = this.getConnectionKey(connection)
-
-    delete connections[key]
-
-    this.setConnections(connections)
+    const newConns = omit(connections, key)
+    console.log('%c delete connection', 'background: pink; color: #000', connections, key, newConns)
+    this.setConnections(newConns)
   }
+
   getConnectionKey(connection: ConnectionConfig, forceUnique = false) {
     if (Object.keys(connection).length === 0) {
       return ''
@@ -88,6 +91,7 @@ class Storage {
 
     return (connection.host || '') + (connection.port || '') + connection.name
   }
+
   sortConnections(connections: ConnectionConfig[]) {
     connections.sort(function (a, b) {
       if (a.key && b.key) {

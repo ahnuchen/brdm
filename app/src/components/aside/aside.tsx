@@ -9,7 +9,7 @@ import { Connections } from '@/src/components/connections'
 
 export function Aside(): JSX.Element {
   const [visible, setVisible] = useState(false)
-  const [connectionModalVisible, setConnectionModalVisible] = useState(true)
+  const [connectionModalVisible, setConnectionModalVisible] = useState(false)
   const connectionsRef = useRef({ initConnection: (config: ConnectionConfig) => {} })
 
   return (

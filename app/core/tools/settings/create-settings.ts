@@ -100,4 +100,20 @@ export class CreateSettings<T extends AnyObj = AnyObj> {
 
     return flg
   }
+  // 写入全部配置
+  setAll<K extends keyof T>(config: K | Partial<T>) {
+    let saveStr: string
+    try {
+      if (typeof config === 'string') {
+        saveStr = JSON.stringify(JSON.parse(config), undefined, 2)
+      } else {
+        saveStr = JSON.stringify(config, undefined, 2)
+      }
+      const logMessage = `Set all settings <${this.name}> : `
+      log.info(logMessage, saveStr)
+      fs.writeFileSync(this.filePath, saveStr, 'utf-8')
+    } catch (error) {
+      log.error(error)
+    }
+  }
 }

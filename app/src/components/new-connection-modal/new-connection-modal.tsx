@@ -42,6 +42,7 @@ export function NewConnectionModal({
     !config.host && (config.host = redisConnectConfig.host)
     !config.port && (config.port = redisConnectConfig.port)
     const oldKey = $tools.storage.getConnectionKey(connectionConfig)
+    console.log({ config, oldKey })
     $tools.storage.editConnectionByKey(config, oldKey)
     setVisible(false)
     onConfigFinished && onConfigFinished(config)

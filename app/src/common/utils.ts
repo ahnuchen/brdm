@@ -2,6 +2,17 @@ type StringBuffer = string | Buffer
 
 export default {
   data: {},
+  omit(obj: AnyObj, key: string) {
+    const obj2 = {}
+    if (obj) {
+      Object.keys(obj).forEach((k) => {
+        if (k !== key) {
+          obj2[k] = obj[k]
+        }
+      })
+    }
+    return obj2
+  },
   get(name: string) {
     return this.data[name]
   },
@@ -165,5 +176,8 @@ export default {
 
       return a.children ? -1 : b.children ? 1 : 0
     })
+  },
+  copyObject(obj: AnyObj) {
+    return JSON.parse(JSON.stringify(obj))
   },
 }

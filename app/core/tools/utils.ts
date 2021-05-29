@@ -68,3 +68,15 @@ export function toSearch(obj: AnyObj): string {
   })
   return '?' + arr.join('&')
 }
+
+export function omit(obj: AnyObj, key: string) {
+  const obj2 = {}
+  if (obj) {
+    Object.keys(obj).forEach((k) => {
+      if (k !== key) {
+        obj2[k] = obj[k]
+      }
+    })
+  }
+  return obj2
+}
