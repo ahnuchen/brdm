@@ -1,4 +1,4 @@
-import { RedisOptions } from 'ioredis'
+import IORedis, { RedisOptions } from 'ioredis'
 import tunnelssh from 'tunnel-ssh'
 
 declare global {
@@ -7,15 +7,25 @@ declare global {
     privatekeybookmark?: string
     privatekey?: string
   }
+  interface SSLOptions {
+    key?: string
+    ca?: string
+    cert?: string
+    keybookmark?: string
+    cabookmark?: string
+    certbookmark?: string
+  }
   interface ConnectionConfig extends RedisOptions {
     name?: string
     key?: string
-    sslOptions?: SSHOptions
+    sshOptions?: SSHOptions
+    sslOptions?: SSLOptions
     cluster?: boolean
-    connectionName?: string
+    connectionName: string
     separator?: string
     SSHTunnel?: boolean
     SSLTunnel?: boolean
     clusterMode?: boolean
   }
+  type IORedisClient = IORedis.Redis | IORedis.Cluster
 }

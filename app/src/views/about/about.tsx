@@ -2,7 +2,6 @@ import React from 'react'
 import { shell } from 'electron'
 
 import './about.less'
-import { $bus, EventTypes } from '@/src/common/emitter'
 
 export default class About extends React.Component<PageProps> {
   render(): JSX.Element {

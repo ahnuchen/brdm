@@ -1,14 +1,14 @@
-import React, { forwardRef, Ref, useImperativeHandle, useState } from 'react'
-import { useMount, usePersistFn } from 'ahooks'
+import React, { forwardRef, Ref, useImperativeHandle, useRef, useState } from 'react'
+import { useMount, usePersistFn, useSelections } from 'ahooks'
 import { Button, Collapse } from 'antd'
-import { ConnectionMenu } from '@/src/components/connections/connection-menu'
-import { OperateItem } from '@/src/components/connections/operate-item'
-import { KeyList } from '@/src/components/key-list'
+import { ConnectionWrapper } from '@/src/components/connections/connection-wrapper'
 
 const ConnectionsInner = (props: any, ref: Ref<any>): JSX.Element => {
+  const connectionWrapperRef = useRef<any>()
+
   const [connections, setConnections] = useState<ConnectionConfig[]>([])
   // Collapse expand keys
-  const [activeKeys, setActiveKeys] = useState<string | string[]>([])
+  const [activeKeys, setActiveKeys] = useState<string[]>([])
 
   const initConnection = usePersistFn(() => {
     const connections = $tools.storage.getConnections(true)
@@ -23,7 +23,24 @@ const ConnectionsInner = (props: any, ref: Ref<any>): JSX.Element => {
 
   useMount(() => {
     $tools.$bus.on($tools.EventTypes.RefreshConnection, initConnection)
+    $tools.$bus.on($tools.EventTypes.CloseConnection, initConnection)
     initConnection()
+  })
+
+  const closeMenu = usePersistFn((key: string) => {
+    const nextActiveKeys = activeKeys.filter((k) => k !== key)
+    setActiveKeys(nextActiveKeys)
+  })
+
+  const onCollapseChange = usePersistFn((keys) => {
+    // check if is open
+    if (keys.length > activeKeys.length) {
+      const differanceKey = keys.find((k: string) => !activeKeys.includes(k))
+      // connectionWrapperRef.current.openConnection({
+      //   connectionName: differanceKey,
+      // })
+    }
+    setActiveKeys(keys)
   })
 
   useImperativeHandle(ref, () => ({
@@ -32,9 +49,7 @@ const ConnectionsInner = (props: any, ref: Ref<any>): JSX.Element => {
 
   return (
     <Collapse
-      onChange={(keys) => {
-        setActiveKeys(keys)
-      }}
+      onChange={onCollapseChange}
       activeKey={activeKeys}
       ghost={true}
       expandIconPosition="left"
@@ -42,12 +57,25 @@ const ConnectionsInner = (props: any, ref: Ref<any>): JSX.Element => {
     >
       {connections.map((item, index) => (
         <Collapse.Panel
-          extra={<ConnectionMenu config={item} />}
-          key={item.connectionName || index}
+          extra={
+            <ConnectionWrapper
+              activeKeys={activeKeys}
+              ref={connectionWrapperRef}
+              closeMenu={closeMenu}
+              config={item}
+              isMenu={true}
+            />
+          }
+          key={item.connectionName}
           header={item.connectionName}
         >
-          <OperateItem />
-          <KeyList />
+          <ConnectionWrapper
+            activeKeys={activeKeys}
+            ref={connectionWrapperRef}
+            closeMenu={closeMenu}
+            config={item}
+            isMenu={false}
+          />
         </Collapse.Panel>
       ))}
     </Collapse>

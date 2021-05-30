@@ -3,6 +3,7 @@ import tunnelssh from 'tunnel-ssh'
 import { remote } from 'electron'
 import { message } from 'antd'
 import { i18n } from '@/src/i18n/i18n'
+import { AddressInfo } from 'net'
 const fs = require('fs')
 
 // fix ioredis hgetall key has been toString()
@@ -15,10 +16,37 @@ IORedis.Command.setReplyTransformer('hgetall', (result) => {
   return arr
 })
 
-type IORedisClient = IORedis.Redis | IORedis.Cluster
+interface ClusterRedisConfig extends Omit<ConnectionConfig, 'cluster'> {
+  cluster: true
+}
 
-export default {
-  createConnection(host = '', port = 6379, auth: string, config: ConnectionConfig): IORedisClient {
+interface NormalRedisConfig extends Omit<ConnectionConfig, 'cluster'> {
+  cluster: false
+}
+
+class RedisClient {
+  createConnection(
+    host: ConnectionConfig['host'],
+    port: ConnectionConfig['port'],
+    auth: ConnectionConfig['password'],
+    config: NormalRedisConfig,
+    promise?: false | undefined
+  ): IORedis.Redis
+  createConnection(
+    host: ConnectionConfig['host'],
+    port: ConnectionConfig['port'],
+    auth: ConnectionConfig['password'],
+    config: ClusterRedisConfig,
+    promise?: false | undefined
+  ): IORedis.Cluster
+  createConnection(
+    host: ConnectionConfig['host'],
+    port: ConnectionConfig['port'],
+    auth: ConnectionConfig['password'],
+    config: ConnectionConfig,
+    promise: true
+  ): Promise<IORedisClient>
+  createConnection(host = '', port = 6379, auth = '', config: ConnectionConfig, promise = true): any {
     const options = this.getRedisOptions(host, port, auth, config)
 
     let client: IORedisClient
@@ -31,10 +59,24 @@ export default {
       const clusterOptions = this.getClusterOptions(options, config.natMap ? config.natMap : {})
       client = new IORedis.Cluster([{ port, host }], clusterOptions)
     }
+    if (promise) {
+      return new Promise((resolve, reject) => {
+        resolve(client)
+      })
+    }
     return client
-  },
+  }
 
-  createSSHConnection(sshOptions: SSHOptions, host = '', port = 0, auth = '', config: ConnectionConfig) {
+  createSSHConnection(
+    sshOptions: ConnectionConfig['sshOptions'],
+    host = '',
+    port = 0,
+    auth = '',
+    config: ConnectionConfig
+  ): Promise<IORedisClient> {
+    if (!sshOptions) {
+      return this.createConnection(host, port, auth, config, true)
+    }
     const sshConfig: tunnelssh.Config = {
       username: sshOptions.username,
       password: sshOptions.password,
@@ -65,12 +107,18 @@ export default {
           return reject(error)
         }
 
-        const listenAddress = server.address()
+        const listenAddress = server.address() as AddressInfo
 
         // ssh standalone IORedis
         if (!config.cluster) {
           // @ts-ignore
-          const client = this.createConnection(listenAddress?.address, listenAddress?.port, auth, config)
+          const client: IORedisClient = this.createConnection(
+            listenAddress?.address,
+            listenAddress?.port,
+            auth,
+            config,
+            false
+          )
           return resolve(client)
         }
 
@@ -98,9 +146,9 @@ export default {
               configRaw.natMap = this.initNatMap(tunnels)
 
               // select first line of tunnels to connect
-              const clusterClient = this.createConnection(
-                tunnels[0].localHost,
-                tunnels[0].localPort,
+              const clusterClient: IORedisClient = this.createConnection(
+                tunnels[0].localHost || '127.0.0.1',
+                tunnels[0].localPort || 6379,
                 auth,
                 configRaw
               )
@@ -112,8 +160,8 @@ export default {
       })
     })
 
-    return sshPromise
-  },
+    return sshPromise as Promise<IORedisClient>
+  }
 
   getRedisOptions(host: string, port: number, auth = '', config: ConnectionConfig): RedisOptions {
     return {
@@ -126,7 +174,7 @@ export default {
       password: auth,
       tls: config.sslOptions ? this.getTLSOptions(config.sslOptions) : undefined,
     }
-  },
+  }
 
   getClusterOptions(redisOptions: RedisOptions, natMap = {}) {
     return {
@@ -136,7 +184,7 @@ export default {
       redisOptions: redisOptions,
       natMap: natMap,
     }
-  },
+  }
 
   getClusterNodes(nodes: string, type = 'master') {
     const result = []
@@ -161,7 +209,7 @@ export default {
     }
 
     return result
-  },
+  }
 
   createClusterSSHTunnels(sshConfig: SSHOptions, nodes: RedisOptions[]): Promise<tunnelssh.Config[]> {
     const sshTunnelStack = []
@@ -200,7 +248,7 @@ export default {
     }
 
     return Promise.all(sshTunnelStack)
-  },
+  }
 
   initNatMap(tunnels: tunnelssh.Config[]): NatMap {
     const natMap = {}
@@ -210,7 +258,7 @@ export default {
     }
 
     return natMap
-  },
+  }
 
   getTLSOptions(options: any) {
     return {
@@ -227,7 +275,7 @@ export default {
       },
       rejectUnauthorized: false,
     }
-  },
+  }
 
   retryStragety(times: number) {
     const maxRetryTimes = 3
@@ -240,7 +288,7 @@ export default {
 
     // reconnect after
     return Math.min(times * 200, 1000)
-  },
+  }
 
   getFileContent(file?: string, bookmark = '') {
     if (!file) {
@@ -266,5 +314,7 @@ export default {
 
       return undefined
     }
-  },
+  }
 }
+
+export default new RedisClient()
