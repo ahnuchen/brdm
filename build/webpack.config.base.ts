@@ -34,7 +34,6 @@ const webpackConfig: Configuration = {
           const val = variables[key]
           defines[`process.env.${key}`] = typeof val === 'string' ? `"${val}"` : JSON.stringify(val)
         })
-        defines['$api'] = 'global.__$api'
         defines['$tools'] = 'global.__$tools'
         defines['$store'] = 'global.__$store'
         return defines

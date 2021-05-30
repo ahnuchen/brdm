@@ -11,6 +11,8 @@ const routes: RouteConfig[] = [
       width: 300,
       height: 240,
       vibrancy: 'fullscreen-ui',
+      movable: false,
+      alwaysOnTop: true,
     },
     createConfig: {
       showTitlebar: true,
