@@ -23,6 +23,7 @@ const redisConnectConfig = {
   SSHTunnel: false,
   SSLTunnel: false,
   clusterMode: false,
+  connectionName: '',
 }
 
 export function NewConnectionModal({
