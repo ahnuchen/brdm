@@ -1,5 +1,4 @@
 import React from 'react'
-import { List } from 'antd'
 import utils from '@/src/common/utils'
 
 interface NormalKeyListProps {
@@ -8,10 +7,10 @@ interface NormalKeyListProps {
 
 export function NormalKeyList({ keyList }: NormalKeyListProps): JSX.Element {
   return (
-    <List>
+    <ul>
       {keyList.map((k, i) => (
-        <List.Item key={i}>{utils.bufToString(k)}</List.Item>
+        <li key={i}>{utils.bufToString(k)}</li>
       ))}
-    </List>
+    </ul>
   )
 }

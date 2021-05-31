@@ -5,15 +5,25 @@ import { KeyList } from '@/src/components/key-list'
 import { useMount, usePersistFn } from 'ahooks'
 import redisClient from '@/src/common/redisClient'
 import { Collapse, message } from 'antd'
+import { RightOutlined, LoadingOutlined } from '@ant-design/icons'
 
 interface ConnectionWrapperProps {
   config: ConnectionConfig
 }
-
+function randomString(len = 32) {
+  const $chars =
+    'ABCDEFGHJKMNPQRSTWXYZabcdefhijkmnprstwxyz2345678' /****默认去掉了容易混淆的字符oOLl,9gq,Vv,Uu,I1****/
+  const maxPos = $chars.length
+  let pwd = ''
+  for (let i = 0; i < len; i++) {
+    pwd += $chars.charAt(Math.floor(Math.random() * maxPos))
+  }
+  return pwd
+}
 export function ConnectionWrapper({ config }: ConnectionWrapperProps): JSX.Element {
   const operateItemRef = useRef<any>()
   const keyListRef = useRef<any>()
-  const [opening, setOpening] = useState(true)
+  const [opening, setOpening] = useState(false)
   const [client, setClient] = useState<IORedisClient | null>(null)
   const [activeKeys, setActiveKeys] = useState<string[]>([])
 
@@ -41,23 +51,18 @@ export function ConnectionWrapper({ config }: ConnectionWrapperProps): JSX.Eleme
   })
 
   const initShow = usePersistFn(() => {
-    if (operateItemRef.current && keyListRef.current) {
-      operateItemRef.current.initShow()
-      keyListRef.current.initShow()
-    } else {
-      const t = setTimeout(() => {
-        operateItemRef.current.initShow()
-        keyListRef.current.initShow()
-        clearTimeout(t)
-      }, 300)
-    }
+    operateItemRef.current.initShow()
+    keyListRef.current.initShow()
+    /*    let count = 0
+    while (count++ < 9999) {
+      client?.set(randomString(20), randomString(20))
+    }*/
   })
 
   const openConnection = usePersistFn(({ connectionName, callback }) => {
     if (connectionName && connectionName !== config.connectionName) {
       return
     }
-    setOpening(true)
     if (client) {
       afterOpenConnection(client)
     } else {
@@ -133,14 +138,20 @@ export function ConnectionWrapper({ config }: ConnectionWrapperProps): JSX.Eleme
   })
 
   return (
-    <Collapse activeKey={activeKeys} onChange={onCollapseChange}>
+    <Collapse
+      expandIcon={({ isActive }) =>
+        opening ? <LoadingOutlined /> : <RightOutlined rotate={isActive ? 90 : 0} />
+      }
+      activeKey={activeKeys}
+      onChange={onCollapseChange}
+    >
       <Collapse.Panel
         extra={<ConnectionMenu config={config} />}
         key={config.connectionName}
         header={config.connectionName}
       >
-        <OperateItem ref={operateItemRef} />
-        <KeyList config={config} client={client as IORedisClient} ref={keyListRef} />
+        <OperateItem client={client as IORedisClient} ref={operateItemRef} />
+        <KeyList setOpening={setOpening} config={config} client={client as IORedisClient} ref={keyListRef} />
       </Collapse.Panel>
     </Collapse>
   )
