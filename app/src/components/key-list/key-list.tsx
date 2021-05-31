@@ -1,4 +1,4 @@
-import React, { forwardRef, Ref, useEffect, useImperativeHandle, useReducer, useState } from 'react'
+import React, { Component, forwardRef, Ref, useEffect, useImperativeHandle, useReducer, useState } from 'react'
 import { usePersistFn } from 'ahooks'
 import { Readable } from 'stream'
 import { i18n } from '@/src/i18n/i18n'
@@ -15,7 +15,7 @@ function KeyListInner({ config, client }: KeyListProps, ref: Ref<any>): JSX.Elem
   const [keyList, setKeyList] = useState<any[]>(() => [])
   const [onePageList, setOnePageList] = useState<any[]>(() => [])
   const [onePageFinishedCount, setOnePageFinishedCount] = useState(0)
-  const [keysPageSize, setKeysPageSize] = useState(500)
+  const [keysPageSize, setKeysPageSize] = useState(3)
   const [searchPageSize, setSearchPageSize] = useState(10000)
   const [scanningCount, setScanningCount] = useState(0)
   const [scanMoreDisabled, setScanMoreDisabled] = useState(false)
@@ -58,6 +58,12 @@ function KeyListInner({ config, client }: KeyListProps, ref: Ref<any>): JSX.Elem
     }
     setScanningCount(nodes.length)
 
+    let scanningCount = nodes.length
+    let onePageList: any[] = []
+    let keyList: any[] = []
+    let onePageFinishedCount = 0
+    let firstPageFinished = false
+
     nodes.map((node) => {
       const scanOption = {
         match: getMatchMode(),
@@ -72,18 +78,16 @@ function KeyListInner({ config, client }: KeyListProps, ref: Ref<any>): JSX.Elem
       setScanStreams(scanStreams.concat(scanStreams))
 
       stream.on('data', (keys) => {
-        console.log('%c ondata', 'background: black; color: white', keys)
-        const nextOnePageList = onePageList.concat(keys)
-        setOnePageList((onePageList) => onePageList.concat(keys))
+        onePageList = onePageList.concat(keys)
+        setOnePageList(onePageList)
         // scan once reaches page size
-        if (nextOnePageList.length >= keysPageSize) {
+        if (onePageList.length >= keysPageSize) {
           // temp stop
           stream.pause()
           // search input icon recover
 
           // last node refresh keylist
-          setOnePageFinishedCount(onePageFinishedCount + 1)
-          if (onePageFinishedCount + 1 >= scanningCount) {
+          if (++onePageFinishedCount >= scanningCount) {
             // clear key list only after data scaned, to prevent list jitter
             if (!firstPageFinished) {
               setFirstPageFinished(true)
@@ -91,22 +95,28 @@ function KeyListInner({ config, client }: KeyListProps, ref: Ref<any>): JSX.Elem
             }
 
             // this page key list append to raw key list
-            setKeyList((keyList) => keyList.concat(onePageList.sort()))
+            keyList = keyList.concat(onePageList.sort())
+            setKeyList(keyList)
           }
         }
       })
       stream.on('end', () => {
         // all nodes scan finished(cusor back to 0)
-        setScanningCount((c) => c - 1)
-        if (scanningCount - 1 <= 0) {
+        setScanningCount(scanningCount)
+        scanningCount = scanningCount - 1
+        if (scanningCount <= 0) {
           // clear key list only after data scaned, to prevent list jitter
           if (!firstPageFinished) {
+            firstPageFinished = true
             setFirstPageFinished(true)
+            keyList = []
             setKeyList(() => [])
           }
 
           // this page key list append to raw key list
-          setKeyList(keyList.concat(onePageList.sort()))
+
+          keyList = keyList.concat(onePageList.sort())
+          setKeyList(keyList)
           setScanMoreDisabled(true)
           // search input icon recover
         }
