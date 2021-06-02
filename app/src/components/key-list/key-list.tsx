@@ -12,7 +12,7 @@ import { useMount, usePersistFn } from 'ahooks'
 import { Readable } from 'stream'
 import { i18n } from '@/src/i18n/i18n'
 import { Button, message } from 'antd'
-import { NormalKeyList } from '@/src/components/key-list/normal-key-list'
+import { KeyListTree } from '@/src/components/key-list/key-list-tree'
 
 interface KeyListProps {
   config: ConnectionConfig
@@ -219,7 +219,7 @@ function KeyListInner({ config, client, setOpening }: KeyListProps, ref: Ref<any
 
   return (
     <>
-      <NormalKeyList keyList={keyList} />
+      <KeyListTree client={client} config={config} keyList={keyList} />
       <Button
         type="ghost"
         block={true}

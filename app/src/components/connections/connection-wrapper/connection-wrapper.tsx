@@ -54,8 +54,14 @@ export function ConnectionWrapper({ config }: ConnectionWrapperProps): JSX.Eleme
     operateItemRef.current.initShow()
     keyListRef.current.initShow()
     /*    let count = 0
-    while (count++ < 9999) {
-      client?.set(randomString(20), randomString(20))
+    while (count++ < 99) {
+      client?.set(`a:${randomString(10)}`, randomString(10))
+      client?.set(`a:a:${randomString(10)}`, randomString(10))
+      client?.set(`a:b:${randomString(10)}`, randomString(10))
+      client?.set(`a:b:c:${randomString(10)}`, randomString(10))
+      client?.set(`b:c:${randomString(10)}`, randomString(10))
+      client?.set(`b:c:e:${randomString(10)}`, randomString(10))
+      client?.set(`b:d:${randomString(10)}`, randomString(10))
     }*/
   })
 

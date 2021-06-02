@@ -6601,6 +6601,14 @@ react-color@^2.19.3:
     reactcss "^1.2.0"
     tinycolor2 "^1.4.1"
 
+react-contextmenu@^2.14.0:
+  version "2.14.0"
+  resolved "https://registry.npm.taobao.org/react-contextmenu/download/react-contextmenu-2.14.0.tgz#d8966f30614b9b780b928be4c8d92bd740d55cdd"
+  integrity sha1-2JZvMGFLm3gLkovkyNkr10DVXN0=
+  dependencies:
+    classnames "^2.2.5"
+    object-assign "^4.1.0"
+
 react-dom@^17.0.2:
   version "17.0.2"
   resolved "https://registry.npm.taobao.org/react-dom/download/react-dom-17.0.2.tgz?cache=0&sync_timestamp=1617207313193&other_urls=https%3A%2F%2Fregistry.npm.taobao.org%2Freact-dom%2Fdownload%2Freact-dom-17.0.2.tgz#ecffb6845e3ad8dbfcdc498f0d0a939736502c23"
