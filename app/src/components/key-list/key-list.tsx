@@ -1,26 +1,38 @@
-import React, { Component, forwardRef, Ref, useEffect, useImperativeHandle, useReducer, useState } from 'react'
-import { usePersistFn } from 'ahooks'
+import React, {
+  Component,
+  forwardRef,
+  Ref,
+  useEffect,
+  useImperativeHandle,
+  useReducer,
+  useRef,
+  useState,
+} from 'react'
+import { useMount, usePersistFn } from 'ahooks'
 import { Readable } from 'stream'
 import { i18n } from '@/src/i18n/i18n'
-import { message } from 'antd'
-import { NormalKeyList } from '@/src/components/key-list/normal-key-list'
+import { Button, message } from 'antd'
+import { KeyListTree } from '@/src/components/key-list/key-list-tree'
 
 interface KeyListProps {
   config: ConnectionConfig
   client: IORedisClient
+  setOpening(opening: boolean): void
 }
 
-function KeyListInner({ config, client }: KeyListProps, ref: Ref<any>): JSX.Element {
-  const [scanStreams, setScanStreams] = useState<Readable[]>([])
+function KeyListInner({ config, client, setOpening }: KeyListProps, ref: Ref<any>): JSX.Element {
+  const scanStreams = useRef<Readable[]>([])
   const [keyList, setKeyList] = useState<any[]>(() => [])
-  const [onePageList, setOnePageList] = useState<any[]>(() => [])
-  const [onePageFinishedCount, setOnePageFinishedCount] = useState(0)
-  const [keysPageSize, setKeysPageSize] = useState(3)
-  const [searchPageSize, setSearchPageSize] = useState(10000)
-  const [scanningCount, setScanningCount] = useState(0)
+  const tempKeyList = useRef([])
+  const onePageList = useRef([])
+  const onePageFinishedCount = useRef(0)
+  const keysPageSize = useRef(500)
+  const searchPageSize = useRef(10000)
+  const scanningCount = useRef(0)
   const [scanMoreDisabled, setScanMoreDisabled] = useState(false)
-  const [firstPageFinished, setFirstPageFinished] = useState(false)
+  const firstPageFinished = useRef(false)
   const initShow = usePersistFn(() => {
+    setOpening(true)
     refreshKeyList()
   })
   const refreshKeyList = usePersistFn((resetKeyListPrevious = true) => {
@@ -32,17 +44,18 @@ function KeyListInner({ config, client }: KeyListProps, ref: Ref<any>): JSX.Elem
     // search loading
 
     // init scanStream
-    if (!scanStreams.length) {
+    setOpening(true)
+    if (!scanStreams.current.length) {
       initScanStreamsAndScan()
     }
 
     // scan more, resume previous scanStream
     else {
       // reset one page scan param
-      setOnePageList([])
-      setOnePageFinishedCount(0)
+      onePageList.current = []
+      onePageFinishedCount.current = 0
 
-      for (const stream of scanStreams) {
+      for (const stream of scanStreams.current) {
         stream.resume()
       }
     }
@@ -56,69 +69,64 @@ function KeyListInner({ config, client }: KeyListProps, ref: Ref<any>): JSX.Elem
     } else {
       nodes = [client]
     }
-    setScanningCount(nodes.length)
-
-    let scanningCount = nodes.length
-    let onePageList: any[] = []
-    let keyList: any[] = []
-    let onePageFinishedCount = 0
-    let firstPageFinished = false
+    scanningCount.current = nodes.length
 
     nodes.map((node) => {
       const scanOption = {
         match: getMatchMode(),
-        count: keysPageSize,
+        count: keysPageSize.current,
       }
 
       // scan count is bigger when in search mode
-      scanOption.match != '*' && (scanOption.count = searchPageSize)
+      scanOption.match != '*' && (scanOption.count = searchPageSize.current)
 
       // @ts-ignore
       const stream = node.scanBufferStream(scanOption) as Readable
-      setScanStreams(scanStreams.concat(scanStreams))
+      scanStreams.current.push(stream)
 
       stream.on('data', (keys) => {
-        onePageList = onePageList.concat(keys)
-        setOnePageList(onePageList)
+        console.log('%c scan data', 'background: pink; color: #000', keys)
+        onePageList.current = onePageList.current.concat(keys)
         // scan once reaches page size
-        if (onePageList.length >= keysPageSize) {
+        if (onePageList.current.length >= keysPageSize.current) {
           // temp stop
           stream.pause()
           // search input icon recover
 
           // last node refresh keylist
-          if (++onePageFinishedCount >= scanningCount) {
+          if (++onePageFinishedCount.current >= scanningCount.current) {
             // clear key list only after data scaned, to prevent list jitter
-            if (!firstPageFinished) {
-              setFirstPageFinished(true)
+            if (!firstPageFinished.current) {
+              firstPageFinished.current = true
+              tempKeyList.current = []
+              firstPageFinished.current = true
               setKeyList(() => [])
             }
 
             // this page key list append to raw key list
-            keyList = keyList.concat(onePageList.sort())
-            setKeyList(keyList)
+            tempKeyList.current = tempKeyList.current.concat(onePageList.current.sort())
+            setKeyList(() => tempKeyList.current)
+            setOpening(false)
           }
         }
       })
       stream.on('end', () => {
         // all nodes scan finished(cusor back to 0)
-        setScanningCount(scanningCount)
-        scanningCount = scanningCount - 1
-        if (scanningCount <= 0) {
+        if (--scanningCount.current <= 0) {
           // clear key list only after data scaned, to prevent list jitter
-          if (!firstPageFinished) {
-            firstPageFinished = true
-            setFirstPageFinished(true)
-            keyList = []
+          if (!firstPageFinished.current) {
+            firstPageFinished.current = true
+            tempKeyList.current = []
             setKeyList(() => [])
           }
 
           // this page key list append to raw key list
 
-          keyList = keyList.concat(onePageList.sort())
-          setKeyList(keyList)
-          setScanMoreDisabled(true)
+          tempKeyList.current = tempKeyList.current.concat(onePageList.current.sort())
+          setKeyList(() => tempKeyList.current)
+          setScanMoreDisabled(() => true)
           // search input icon recover
+          setOpening(false)
         }
       })
       stream.on('error', (e) => {
@@ -132,6 +140,7 @@ function KeyListInner({ config, client }: KeyListProps, ref: Ref<any>): JSX.Elem
             message: i18n.$t('scan_disabled'),
             duration: 1500,
           })
+          setOpening(false)
 
           return
         }
@@ -142,6 +151,8 @@ function KeyListInner({ config, client }: KeyListProps, ref: Ref<any>): JSX.Elem
           duration: 1500,
         })
 
+        setOpening(false)
+
         setTimeout(() => {
           $tools.$bus.emit('closeConnection')
         }, 50)
@@ -151,11 +162,11 @@ function KeyListInner({ config, client }: KeyListProps, ref: Ref<any>): JSX.Elem
 
   const resetKeyList = usePersistFn((clearKeys = false) => {
     clearKeys && setKeyList([])
-    setFirstPageFinished(false)
-    setScanStreams([])
-    setOnePageList([])
-    setOnePageFinishedCount(0)
-    setScanMoreDisabled(false)
+    firstPageFinished.current = false
+    scanStreams.current = []
+    onePageList.current = []
+    onePageFinishedCount.current = 0
+    setScanMoreDisabled(() => false)
   })
 
   const getMatchMode = usePersistFn((fillStar = true) => {
@@ -171,11 +182,57 @@ function KeyListInner({ config, client }: KeyListProps, ref: Ref<any>): JSX.Elem
     return '*'
   })
 
+  const removeKeyFromKeyList = usePersistFn((key) => {
+    if (!keyList || keyList.length === 0) {
+      return false
+    }
+
+    for (let i = 0; i < keyList.length; i++) {
+      if (keyList[i].equals(key)) {
+        setKeyList((k) => k.splice(i, 1))
+        break
+      }
+    }
+  })
+
   useImperativeHandle(ref, () => ({
     initShow,
+    resetKeyList,
   }))
 
-  return <NormalKeyList keyList={keyList} />
+  useMount(() => {
+    $tools.$bus.on($tools.EventTypes.RefreshKeyList, ({ client: c, key, type = 'del' }) => {
+      if (client !== c) {
+        return
+      }
+      if (!key) {
+        return refreshKeyList()
+      }
+      if (type === 'del') {
+        removeKeyFromKeyList(key)
+      }
+      if (type === 'add') {
+        setKeyList((k) => [...k, key])
+      }
+    })
+  })
+
+  return (
+    <>
+      <KeyListTree client={client} config={config} keyList={keyList} />
+      <Button
+        type="ghost"
+        block={true}
+        size="small"
+        disabled={scanMoreDisabled}
+        onClick={() => {
+          refreshKeyList(false)
+        }}
+      >
+        {i18n.$t('load_more_keys')}
+      </Button>
+    </>
+  )
 }
 
 export const KeyList = forwardRef(KeyListInner)

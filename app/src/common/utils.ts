@@ -1,3 +1,5 @@
+import { RightClickMenu } from '@/src/components/key-list/right-click-menu'
+
 type StringBuffer = string | Buffer
 
 export default {
@@ -113,13 +115,15 @@ export default {
   },
   keysToList(keys: Buffer[]) {
     return keys.map((key) => {
+      const name = this.bufToString(key)
       return {
-        name: this.bufToString(key),
+        key: name,
+        title: name,
         nameBuffer: key.toJSON(),
       }
     })
   },
-  keysToTree(keys: Buffer[], separator = ':', openStatus = {}) {
+  keysToTree(keys: Buffer[], separator = ':') {
     const tree = {}
     keys.forEach((key) => {
       let currentNode = tree
@@ -144,23 +148,26 @@ export default {
       })
     })
 
-    return this.formatTreeData(tree, '', openStatus, separator)
+    return this.formatTreeData(tree, '', separator)
   },
-  formatTreeData(tree: AnyObj, previousKey = '', openStatus = {}, separator = ':') {
-    return Object.keys(tree).map((key) => {
+  formatTreeData(tree: AnyObj, previousKey = '', separator = ':') {
+    return Object.entries(tree).map(([key, value]) => {
       const node: AnyObj = { name: key }
 
-      if (!tree[key].keyNode && Object.keys(tree[key]).length > 0) {
+      if (!value.keyNode && Object.keys(value).length > 0) {
         const tillNowKeyName = previousKey + key + separator
-        node.open = !!openStatus[tillNowKeyName]
-        node.children = this.formatTreeData(tree[key], tillNowKeyName, openStatus, separator)
+        node.children = this.formatTreeData(value, tillNowKeyName, separator)
         // keep folder node in top of the tree(not include the outest list)
         this.sortNodes(node.children)
         node.keyCount = node.children.reduce((a: AnyObj, b: AnyObj) => a + (b.keyCount || 0), 0)
         node.fullName = tillNowKeyName
+        node.key = tillNowKeyName + '`_folder`'
+        node.title = `(${node.keyCount}) ${key}`
       } else {
         node.keyCount = 1
         node.name = key.replace(/`k`$/, '')
+        node.key = node.name
+        node.title = node.name
         node.nameBuffer = tree[key].nameBuffer.toJSON()
       }
 
