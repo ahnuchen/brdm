@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react'
 import utils from '@/src/common/utils'
 import { Tree } from 'antd'
-import { DataNode } from 'rc-tree/lib/interface'
+import { DataNode, EventDataNode } from 'rc-tree/lib/interface'
+import './key-list-tree.less'
 
 interface KeyListTreeProps {
   keyList: any[]
@@ -16,24 +17,27 @@ export function KeyListTree({ keyList, client, config }: KeyListTreeProps): JSX.
   const [expandedKeys, setExpandedKeys] = useState<React.Key[]>([])
   const [checkedKeys, setCheckedKeys] = useState<React.Key[]>([])
   const [selectedKeys, setSelectedKeys] = useState<React.Key[]>([])
-  const [autoExpandParent, setAutoExpandParent] = useState<boolean>(false)
 
   const onExpand = (expandedKeysValue: React.Key[]) => {
-    console.log('onExpand', expandedKeysValue)
-    // if not set autoExpandParent to false, if children expanded, parent can not collapse.
-    // or, you can remove all expanded children keys.
     setExpandedKeys(expandedKeysValue)
-    setAutoExpandParent(false)
   }
 
   const onCheck = (checkedKeysValue: AnyObj, info: any) => {
-    console.log('onCheck', checkedKeysValue)
     setCheckedKeys(checkedKeysValue as React.Key[])
   }
 
   const onSelect = (selectedKeysValue: React.Key[], info: any) => {
-    console.log('onSelect', info)
-    setSelectedKeys(selectedKeysValue)
+    if (selectedKeysValue?.length !== 0) {
+      setSelectedKeys(selectedKeysValue)
+    }
+    const node: EventDataNode = info.node
+    if (node.children && node.children?.length > 0) {
+      if (!node.expanded) {
+        setExpandedKeys((keys) => keys.concat(node.key))
+      } else {
+        setExpandedKeys((keys) => keys.filter((k) => k !== node.key))
+      }
+    }
   }
 
   useEffect(() => {
@@ -44,10 +48,11 @@ export function KeyListTree({ keyList, client, config }: KeyListTreeProps): JSX.
   return (
     <ul>
       <Tree
+        checkable={true}
         virtual={true}
         onExpand={onExpand}
         expandedKeys={expandedKeys}
-        autoExpandParent={autoExpandParent}
+        autoExpandParent={false}
         onCheck={onCheck}
         checkedKeys={checkedKeys}
         onSelect={onSelect}
