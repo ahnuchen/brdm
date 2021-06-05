@@ -1,6 +1,7 @@
 import React, { forwardRef, Ref, useImperativeHandle, useState } from 'react'
 import { useMount, usePersistFn } from 'ahooks'
 import { message } from 'antd'
+import { $bus, EventTypes } from '@/src/common/emitter'
 
 interface OperateItemInnerProps {
   client: IORedisClient
@@ -21,6 +22,7 @@ function OperateItemInner({ client }: OperateItemInnerProps, ref: Ref<any>): JSX
     client
       .config('GET', 'databases')
       .then((reply) => {
+        console.log('%c reply', 'background: black; color: white', reply, client)
         setdbs([...Array(parseInt(reply[1])).keys()])
       })
       .catch((e) => {
@@ -72,7 +74,7 @@ function OperateItemInner({ client }: OperateItemInnerProps, ref: Ref<any>): JSX
     client
       .select(index)
       .then(() => {
-        $tools.$bus.emit($tools.EventTypes.RefreshKeyList, { client })
+        $bus.emit(EventTypes.RefreshKeyList, { client })
       })
       // select is not allowed in cluster mode
       .catch((e) => {
@@ -97,8 +99,8 @@ function OperateItemInner({ client }: OperateItemInnerProps, ref: Ref<any>): JSX
     const promise = setDefaultValue(key, selectedNewKeyType) as Promise<any>
 
     promise.then(() => {
-      $tools.$bus.emit($tools.EventTypes.RefreshKeyList, { client, key, type: 'add' })
-      $tools.$bus.emit($tools.EventTypes.ClickedKey, { client, key, newTab: true })
+      $bus.emit(EventTypes.RefreshKeyList, { client, key, type: 'add' })
+      $bus.emit(EventTypes.ClickedKey, { client, key, newTab: true })
     })
 
     setnewKeyDialog(false)
@@ -132,7 +134,7 @@ function OperateItemInner({ client }: OperateItemInnerProps, ref: Ref<any>): JSX
   }))
 
   useMount(() => {
-    $tools.$bus.on($tools.EventTypes.ChangeDb, ({ c, dbIndex }) => {
+    $bus.on(EventTypes.ChangeDb, ({ c, dbIndex }) => {
       if (c !== client) {
         return 0
       }

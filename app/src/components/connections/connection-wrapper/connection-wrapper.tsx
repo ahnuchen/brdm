@@ -6,6 +6,7 @@ import { useMount, usePersistFn } from 'ahooks'
 import redisClient from '@/src/common/redisClient'
 import { Collapse, message } from 'antd'
 import { RightOutlined, LoadingOutlined } from '@ant-design/icons'
+import { $bus, EventTypes } from '@/src/common/emitter'
 
 interface ConnectionWrapperProps {
   config: ConnectionConfig
@@ -39,7 +40,7 @@ export function ConnectionWrapper({ config }: ConnectionWrapperProps): JSX.Eleme
     closeMenu()
 
     // TODO close all tab after close connection
-    // $tools.$bus.emit($tools.EventTypes.RemoveAllTab)
+    // $bus.emit(EventTypes.RemoveAllTab)
 
     // TODO reset operateItem items
     // operateItemRef.current.resetStatus()
@@ -85,7 +86,7 @@ export function ConnectionWrapper({ config }: ConnectionWrapperProps): JSX.Eleme
   const afterOpenConnection = usePersistFn((client: IORedisClient, callback?) => {
     if (client.status !== 'ready') {
       client.on('ready', () => {
-        $tools.$bus.emit('openStatus', { client, connectionName: config.connectionName })
+        $bus.emit('openStatus', { client, connectionName: config.connectionName })
         initShow()
         console.log('%c client', 'background: pink; color: #000', client, callback)
         callback && callback()
@@ -140,7 +141,7 @@ export function ConnectionWrapper({ config }: ConnectionWrapperProps): JSX.Eleme
   })
 
   useMount(() => {
-    $tools.$bus.on($tools.EventTypes.CloseConnection, closeConnection)
+    $bus.on(EventTypes.CloseConnection, closeConnection)
   })
 
   return (

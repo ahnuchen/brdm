@@ -13,6 +13,7 @@ import { Dropdown, Menu, Tooltip } from 'antd'
 import { ChromePicker } from 'react-color'
 import { i18n } from '@/src/i18n/i18n'
 import { usePersistFn } from 'ahooks'
+import { $bus, EventTypes } from '@/src/common/emitter'
 
 interface ConnectionMenuProps {
   config: ConnectionConfig
@@ -23,7 +24,7 @@ export function ConnectionMenu({ config }: ConnectionMenuProps): JSX.Element {
 
   const deleteConnection = usePersistFn(() => {
     $tools.storage.deleteConnection(config)
-    $tools.$bus.emit($tools.EventTypes.RefreshConnection)
+    $bus.emit(EventTypes.RefreshConnection)
   })
 
   return (

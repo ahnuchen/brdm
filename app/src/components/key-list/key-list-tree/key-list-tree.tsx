@@ -3,6 +3,8 @@ import utils from '@/src/common/utils'
 import { Tree } from 'antd'
 import { DataNode, EventDataNode } from 'rc-tree/lib/interface'
 import './key-list-tree.less'
+import { usePersistFn } from 'ahooks'
+import { $bus, EventTypes } from '@/src/common/emitter'
 
 interface KeyListTreeProps {
   keyList: any[]
@@ -18,15 +20,20 @@ export function KeyListTree({ keyList, client, config }: KeyListTreeProps): JSX.
   const [checkedKeys, setCheckedKeys] = useState<React.Key[]>([])
   const [selectedKeys, setSelectedKeys] = useState<React.Key[]>([])
 
-  const onExpand = (expandedKeysValue: React.Key[]) => {
+  const onExpand = usePersistFn((expandedKeysValue: React.Key[]) => {
     setExpandedKeys(expandedKeysValue)
-  }
+  })
 
-  const onCheck = (checkedKeysValue: AnyObj, info: any) => {
+  const onCheck = usePersistFn((checkedKeysValue: AnyObj, info: any) => {
     setCheckedKeys(checkedKeysValue as React.Key[])
-  }
+  })
 
-  const onSelect = (selectedKeysValue: React.Key[], info: any) => {
+  const onClickNode = usePersistFn((node: EventDataNode, nativeEvent: MouseEvent | null, newTab = false) => {
+    const openNewTab = newTab || nativeEvent?.ctrlKey || nativeEvent?.metaKey
+    $bus.emit(EventTypes.ClickedKey, client, node.key, openNewTab)
+  })
+
+  const onSelect = usePersistFn((selectedKeysValue: React.Key[], info: any) => {
     if (selectedKeysValue?.length !== 0) {
       setSelectedKeys(selectedKeysValue)
     }
@@ -37,8 +44,10 @@ export function KeyListTree({ keyList, client, config }: KeyListTreeProps): JSX.
       } else {
         setExpandedKeys((keys) => keys.filter((k) => k !== node.key))
       }
+    } else {
+      onClickNode(node, info.nativeEvent)
     }
-  }
+  })
 
   useEffect(() => {
     const treeData = separator ? utils.keysToTree(keyList, separator) : utils.keysToList(keyList)
@@ -48,7 +57,7 @@ export function KeyListTree({ keyList, client, config }: KeyListTreeProps): JSX.
   return (
     <ul>
       <Tree
-        checkable={true}
+        checkable={false}
         virtual={true}
         onExpand={onExpand}
         expandedKeys={expandedKeys}

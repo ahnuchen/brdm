@@ -1,18 +1,10 @@
-import React, {
-  Component,
-  forwardRef,
-  Ref,
-  useEffect,
-  useImperativeHandle,
-  useReducer,
-  useRef,
-  useState,
-} from 'react'
+import React, { forwardRef, Ref, useImperativeHandle, useRef, useState } from 'react'
 import { useMount, usePersistFn } from 'ahooks'
 import { Readable } from 'stream'
 import { i18n } from '@/src/i18n/i18n'
 import { Button, message } from 'antd'
 import { KeyListTree } from '@/src/components/key-list/key-list-tree'
+import { $bus, EventTypes } from '@/src/common/emitter'
 
 interface KeyListProps {
   config: ConnectionConfig
@@ -85,7 +77,6 @@ function KeyListInner({ config, client, setOpening }: KeyListProps, ref: Ref<any
       scanStreams.current.push(stream)
 
       stream.on('data', (keys) => {
-        console.log('%c scan data', 'background: pink; color: #000', keys)
         onePageList.current = onePageList.current.concat(keys)
         // scan once reaches page size
         if (onePageList.current.length >= keysPageSize.current) {
@@ -154,7 +145,7 @@ function KeyListInner({ config, client, setOpening }: KeyListProps, ref: Ref<any
         setOpening(false)
 
         setTimeout(() => {
-          $tools.$bus.emit('closeConnection')
+          $bus.emit('closeConnection')
         }, 50)
       })
     })
@@ -201,7 +192,7 @@ function KeyListInner({ config, client, setOpening }: KeyListProps, ref: Ref<any
   }))
 
   useMount(() => {
-    $tools.$bus.on($tools.EventTypes.RefreshKeyList, ({ client: c, key, type = 'del' }) => {
+    $bus.on(EventTypes.RefreshKeyList, ({ client: c, key, type = 'del' }) => {
       if (client !== c) {
         return
       }
