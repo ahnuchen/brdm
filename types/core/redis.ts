@@ -1,5 +1,6 @@
 import IORedis, { RedisOptions } from 'ioredis'
 import tunnelssh from 'tunnel-ssh'
+import { RedisKeyTypes } from '@/src/common/redisKeyTypes'
 
 declare global {
   interface SSHOptions extends tunnelssh.Config {
@@ -28,4 +29,5 @@ declare global {
     clusterMode?: boolean
   }
   type IORedisClient = IORedis.Redis | IORedis.Cluster
+  type RedisKeyType = typeof RedisKeyTypes
 }

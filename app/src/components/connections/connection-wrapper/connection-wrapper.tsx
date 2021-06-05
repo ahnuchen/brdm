@@ -89,11 +89,11 @@ export function ConnectionWrapper({ config }: ConnectionWrapperProps): JSX.Eleme
         $bus.emit('openStatus', { client, connectionName: config.connectionName })
         initShow()
         console.log('%c client', 'background: pink; color: #000', client, callback)
-        callback && callback()
+        callback && callback(client)
       })
     } else {
       initShow()
-      callback && callback()
+      callback && callback(client)
     }
   })
 
@@ -142,6 +142,16 @@ export function ConnectionWrapper({ config }: ConnectionWrapperProps): JSX.Eleme
 
   useMount(() => {
     $bus.on(EventTypes.CloseConnection, closeConnection)
+
+    //TODO 默认打开一个key， 方便开发调试，开发完应该删掉此处
+
+    /*    setActiveKeys(['common'])
+    openConnection({
+      connectionName: 'common',
+      callback(client: IORedisClient) {
+        $bus.emit(EventTypes.ClickedKey, client, 'a:1string', false)
+      },
+    })*/
   })
 
   return (
@@ -158,7 +168,9 @@ export function ConnectionWrapper({ config }: ConnectionWrapperProps): JSX.Eleme
         header={config.connectionName}
       >
         <OperateItem client={client as IORedisClient} ref={operateItemRef} />
-        <KeyList setOpening={setOpening} config={config} client={client as IORedisClient} ref={keyListRef} />
+        {client && (
+          <KeyList setOpening={setOpening} config={config} client={client as IORedisClient} ref={keyListRef} />
+        )}
       </Collapse.Panel>
     </Collapse>
   )

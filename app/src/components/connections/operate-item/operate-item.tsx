@@ -1,20 +1,23 @@
 import React, { forwardRef, Ref, useImperativeHandle, useState } from 'react'
 import { useMount, usePersistFn } from 'ahooks'
-import { message } from 'antd'
+import { Button, Checkbox, Divider, Form, Input, message, Modal, Row, Select } from 'antd'
 import { $bus, EventTypes } from '@/src/common/emitter'
+import { PlusOutlined } from '@ant-design/icons'
+import { i18n } from '@/src/i18n/i18n'
+import { RedisKeyTypes } from '@/src/common/redisKeyTypes'
 
 interface OperateItemInnerProps {
   client: IORedisClient
 }
 
 function OperateItemInner({ client }: OperateItemInnerProps, ref: Ref<any>): JSX.Element {
-  const [dbs, setdbs] = useState([0])
-  const [searchExact, setsearchExact] = useState(false)
+  const [dbs, setDbs] = useState<number[]>([0])
+  const [searchExact, setSearchExact] = useState(false)
   const [newKeyDialog, setnewKeyDialog] = useState(false)
-  const [searchMatch, setsearchMatch] = useState('')
-  const [newKeyName, setnewKeyName] = useState('')
-  const [selectedNewKeyType, setselectedNewKeyType] = useState('string')
-  const [selectedDbIndex, setselectedDbIndex] = useState(0)
+  const [searchMatch, setSearchMatch] = useState('')
+  const [newKeyName, setNewKeyName] = useState('')
+  const [selectedNewKeyType, setSelectedNewKeyType] = useState('string')
+  const [selectedDbIndex, setSelectedDbIndex] = useState(0)
   const initShow = usePersistFn(() => {
     initDatabaseSelect()
   })
@@ -23,11 +26,11 @@ function OperateItemInner({ client }: OperateItemInnerProps, ref: Ref<any>): JSX
       .config('GET', 'databases')
       .then((reply) => {
         console.log('%c reply', 'background: black; color: white', reply, client)
-        setdbs([...Array(parseInt(reply[1])).keys()])
+        setDbs([...Array(parseInt(reply[1])).keys()])
       })
       .catch((e) => {
         // config command may be renamed
-        setdbs([...Array(16).keys()])
+        setDbs([...Array(16).keys()])
         // read dbs from info
         getDatabasesFromInfo()
       })
@@ -51,30 +54,26 @@ function OperateItemInner({ client }: OperateItemInnerProps, ref: Ref<any>): JSX
           const lastDBNum = parseInt(lastDB)
 
           if (lastDBNum > 16) {
-            setdbs([...Array(lastDB + 1).keys()])
+            setDbs([...Array(lastDB + 1).keys()])
           }
         } catch (e) {}
       })
       .catch(() => {})
   })
   const resetStatus = usePersistFn(() => {
-    setdbs([0])
-    setselectedDbIndex(0)
-    setsearchMatch('')
-    setsearchExact(false)
+    setDbs([0])
+    setSelectedDbIndex(0)
+    setSearchMatch('')
+    setSearchExact(false)
   })
 
-  const changeDb = usePersistFn((dbIndex) => {
-    let index = 0
-    if (dbIndex !== false) {
-      index = parseInt(dbIndex)
-      setselectedDbIndex(index)
-    }
-
+  const changeDb = (dbIndex: number) => {
+    setSelectedDbIndex(dbIndex)
     client
-      .select(index)
+      .select(dbIndex)
       .then(() => {
-        $bus.emit(EventTypes.RefreshKeyList, { client })
+        console.log('%c client', 'background: pink; color: #000')
+        $bus.emit(EventTypes.RefreshKeyList, client)
       })
       // select is not allowed in cluster mode
       .catch((e) => {
@@ -84,9 +83,9 @@ function OperateItemInner({ client }: OperateItemInnerProps, ref: Ref<any>): JSX
         })
 
         // reset to db0
-        setselectedDbIndex(() => 0)
+        setSelectedDbIndex(() => 0)
       })
-  })
+  }
 
   const addNewKey = usePersistFn(() => {
     if (!newKeyName) {
@@ -99,8 +98,8 @@ function OperateItemInner({ client }: OperateItemInnerProps, ref: Ref<any>): JSX
     const promise = setDefaultValue(key, selectedNewKeyType) as Promise<any>
 
     promise.then(() => {
-      $bus.emit(EventTypes.RefreshKeyList, { client, key, type: 'add' })
-      $bus.emit(EventTypes.ClickedKey, { client, key, newTab: true })
+      $bus.emit(EventTypes.RefreshKeyList, client, key, 'add')
+      $bus.emit(EventTypes.ClickedKey, client, key, true)
     })
 
     setnewKeyDialog(false)
@@ -134,7 +133,7 @@ function OperateItemInner({ client }: OperateItemInnerProps, ref: Ref<any>): JSX
   }))
 
   useMount(() => {
-    $bus.on(EventTypes.ChangeDb, ({ c, dbIndex }) => {
+    $bus.on(EventTypes.ChangeDb, (c, dbIndex) => {
       if (c !== client) {
         return 0
       }
@@ -142,7 +141,49 @@ function OperateItemInner({ client }: OperateItemInnerProps, ref: Ref<any>): JSX
     })
   })
 
-  return <div>OperateItem</div>
+  return (
+    <div>
+      <Row className="flex center">
+        <Select className="flex-1" onChange={changeDb} defaultValue={dbs[0]}>
+          {dbs.map((db) => (
+            <Select.Option key={db} value={db}>
+              db{db}
+            </Select.Option>
+          ))}
+        </Select>
+        <Button className="flex-1" onClick={() => setnewKeyDialog(true)}>
+          <PlusOutlined />
+          {i18n.$t('add_new_key')}{' '}
+        </Button>
+      </Row>
+      <Input.Search placeholder={i18n.$t('enter_to_search')} addonAfter={<Checkbox />} />
+      <Modal
+        title={i18n.$t('add_new_key')}
+        onOk={addNewKey}
+        visible={newKeyDialog}
+        onCancel={() => setnewKeyDialog(false)}
+      >
+        <Form>
+          <Form.Item label={i18n.$t('key_name')}>
+            <Input
+              onInput={(v) => {
+                setNewKeyName(v.currentTarget.value)
+              }}
+            />
+          </Form.Item>
+          <Form.Item label={i18n.$t('key_type')}>
+            <Select onChange={setSelectedNewKeyType} defaultValue={RedisKeyTypes.string}>
+              {Object.keys(RedisKeyTypes).map((keyType) => (
+                <Select.Option key={keyType} value={keyType}>
+                  {keyType}
+                </Select.Option>
+              ))}
+            </Select>
+          </Form.Item>
+        </Form>
+      </Modal>
+    </div>
+  )
 }
 
 export const OperateItem = forwardRef(OperateItemInner)

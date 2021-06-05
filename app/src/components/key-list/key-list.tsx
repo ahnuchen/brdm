@@ -192,7 +192,7 @@ function KeyListInner({ config, client, setOpening }: KeyListProps, ref: Ref<any
   }))
 
   useMount(() => {
-    $bus.on(EventTypes.RefreshKeyList, ({ client: c, key, type = 'del' }) => {
+    $bus.on(EventTypes.RefreshKeyList, (c, key, type = 'del') => {
       if (client !== c) {
         return
       }
