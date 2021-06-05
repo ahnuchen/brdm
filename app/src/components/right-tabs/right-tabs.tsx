@@ -6,6 +6,7 @@ import { useMount, usePersistFn } from 'ahooks'
 import utils from '@/src/common/utils'
 import { i18n } from '@/src/i18n/i18n'
 import { $bus, EventTypes } from '@/src/common/emitter'
+import { KeyDetail } from '@/src/components/key-detail/key-detail'
 
 const { TabPane } = Tabs
 
@@ -14,7 +15,7 @@ interface TabPaneItem {
   key: string
   redisKey: string
   tabType: string
-  keyType: string
+  keyType: RedisKeyType
   client: IORedisClient
 }
 
@@ -145,7 +146,9 @@ export function RightTabs(): JSX.Element {
           key={tab.key}
           closable={true}
         >
-          {tab.title}
+          {tab.tabType === 'key' && (
+            <KeyDetail client={tab.client} redisKey={tab.redisKey} keyType={tab.keyType} />
+          )}
         </TabPane>
       ))}
     </Tabs>
