@@ -1,7 +1,8 @@
-import React, { useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { message, Tabs } from 'antd'
 import { InfoCircleOutlined, KeyOutlined } from '@ant-design/icons'
 import { useMount, usePersistFn } from 'ahooks'
+import Mousetrap from 'mousetrap'
 import utils from '@/src/common/utils'
 import { i18n } from '@/src/i18n/i18n'
 import { $bus, EventTypes } from '@/src/common/emitter'
@@ -25,6 +26,7 @@ interface TabPaneItem {
 export function RightTabs(): JSX.Element {
   const [tabs, setTabs] = useState<TabPaneItem[]>([])
   const [activeKey, setActiveKey] = useState('1')
+  const activeKeyRef = useRef(activeKey)
 
   const onEdit = usePersistFn((targetKey, action) => {
     if (action === 'remove') {
@@ -143,6 +145,15 @@ export function RightTabs(): JSX.Element {
     }
   })
 
+  useEffect(() => {
+    Mousetrap.bind('ctrl+q', () => {
+      if (tabs.length > 0) {
+        removeTab(activeKey)
+      }
+    })
+    activeKeyRef.current = activeKey
+  }, [activeKey])
+
   useMount(() => {
     $bus.on(EventTypes.ClickedKey, (client, key, newTab = false) => {
       addKeyTab(client as IORedisClient, key, newTab)
@@ -151,6 +162,10 @@ export function RightTabs(): JSX.Element {
     $bus.on(EventTypes.OpenStatus, (client, tabName) => {
       console.log('%c on open status', 'background: black; color: white')
       addStatusTab(client, tabName)
+    })
+
+    $bus.on(EventTypes.RemovePreTab, () => {
+      removeTab(activeKeyRef.current)
     })
   })
 

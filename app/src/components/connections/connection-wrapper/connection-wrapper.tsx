@@ -116,7 +116,7 @@ export function ConnectionWrapper({ config }: ConnectionWrapperProps): JSX.Eleme
         client.on('error', (error) => {
           message.error({
             content: 'Redis Client On Error: ' + error + ' Config right?',
-            duration: 3000,
+            duration: 3,
           })
           closeConnection(config.connectionName)
         })
@@ -142,15 +142,15 @@ export function ConnectionWrapper({ config }: ConnectionWrapperProps): JSX.Eleme
   useMount(() => {
     $bus.on(EventTypes.CloseConnection, closeConnection)
 
-    //TODO 默认打开一个key/status， 方便开发调试，开发完应该删掉此处
+    // 默认打开一个key/status， 方便开发调试，开发完应该删掉此处
 
-    setActiveKeys(['common'])
+    /*    setActiveKeys(['common'])
     openConnection({
       connectionName: 'common',
       callback(client: IORedisClient) {
-        // $bus.emit(EventTypes.ClickedKey, client, 'a:1string', false)
+        $bus.emit(EventTypes.ClickedKey, client, 'a:1string', false)
       },
-    })
+    })*/
   })
 
   return (

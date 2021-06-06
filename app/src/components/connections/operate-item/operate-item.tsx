@@ -79,7 +79,7 @@ function OperateItemInner({ client }: OperateItemInnerProps, ref: Ref<any>): JSX
       .catch((e) => {
         message.error({
           content: e.message,
-          duration: 3000,
+          duration: 3,
         })
 
         // reset to db0
@@ -158,6 +158,7 @@ function OperateItemInner({ client }: OperateItemInnerProps, ref: Ref<any>): JSX
       </Row>
       <Input.Search placeholder={i18n.$t('enter_to_search')} addonAfter={<Checkbox />} />
       <Modal
+        destroyOnClose={true}
         title={i18n.$t('add_new_key')}
         onOk={addNewKey}
         visible={newKeyDialog}
@@ -166,6 +167,7 @@ function OperateItemInner({ client }: OperateItemInnerProps, ref: Ref<any>): JSX
         <Form>
           <Form.Item label={i18n.$t('key_name')}>
             <Input
+              autoFocus={true}
               onInput={(v) => {
                 setNewKeyName(v.currentTarget.value)
               }}

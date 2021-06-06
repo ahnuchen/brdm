@@ -129,7 +129,7 @@ function KeyListInner({ config, client, setOpening }: KeyListProps, ref: Ref<any
         ) {
           message.error({
             message: i18n.$t('scan_disabled'),
-            duration: 1500,
+            duration: 2,
           })
           setOpening(false)
 
@@ -139,7 +139,7 @@ function KeyListInner({ config, client, setOpening }: KeyListProps, ref: Ref<any
         // other errors
         message.error({
           message: 'Stream On Error: ' + e.message,
-          duration: 1500,
+          duration: 2,
         })
 
         setOpening(false)
@@ -180,7 +180,10 @@ function KeyListInner({ config, client, setOpening }: KeyListProps, ref: Ref<any
 
     for (let i = 0; i < keyList.length; i++) {
       if (keyList[i].equals(key)) {
-        setKeyList((k) => k.splice(i, 1))
+        setKeyList((k) => {
+          k.splice(i, 1)
+          return [...k]
+        })
         break
       }
     }

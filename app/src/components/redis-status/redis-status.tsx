@@ -3,7 +3,6 @@ import { BackTop, Card, Col, message, Row, Switch, Table, Tag, Tooltip } from 'a
 import { i18n } from '@/src/i18n/i18n'
 import { DatabaseOutlined, InfoCircleFilled, SyncOutlined, WifiOutlined } from '@ant-design/icons'
 import { useMount, usePersistFn } from 'ahooks'
-import { ColumnsType } from 'antd/lib/table/interface'
 
 const BlockCardGrid = ({ children }: { children: React.ReactNode }) => (
   <Card.Grid style={{ width: '100%' }}>{children}</Card.Grid>
@@ -111,7 +110,7 @@ export function RedisStatus({ client }: RedisStatusProps): JSX.Element {
         if (e.message.includes('ERR unknown command')) {
           message.error({
             content: i18n.$t('info_disabled'),
-            duration: 3000,
+            duration: 3,
           })
         }
       })

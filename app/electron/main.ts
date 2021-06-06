@@ -1,4 +1,4 @@
-import { app, Tray } from 'electron'
+import { app, Tray, globalShortcut } from 'electron'
 
 import { creatAppTray } from './tray'
 
@@ -23,6 +23,7 @@ app.on('second-instance', () => {
 app.on('ready', () => {
   tray = creatAppTray()
   $tools.createWindow('Home')
+  globalShortcut.unregister('CommandOrControl+W')
   //TODO 暂时先不要tray隐藏,开发时热更新导致这个tray会越来越多
   // tray.destroy()
 })

@@ -44,7 +44,7 @@ export function KeyListTree({ keyList, client, config }: KeyListTreeProps): JSX.
       } else {
         setExpandedKeys((keys) => keys.filter((k) => k !== node.key))
       }
-    } else {
+    } else if (selectedKeysValue?.length !== 0) {
       onClickNode(node, info.nativeEvent)
     }
   })

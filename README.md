@@ -12,22 +12,31 @@ start dev
 npm run dev
 ```
 
-## Overview
-- webpack
-- electron
-- electron-builder
-- electron-log
-- react
-- react-router
-- redux
-- ant-design
-- remixicon
-- less
-- typescript
-- eslint
-- prettier
-- ahooks
-- ioredis
+## TODO
+- [x] key hdeader
+- [ ] string key content
+- [ ] hash key content
+- [ ] list key content
+- [ ] set key content
+- [ ] zset key content
+- [ ] list key content
+- [ ] search key
+- [ ] key list tree contextmenu
+- [ ] multi delete operation
+- [ ] SSH tunnel
+- [ ] change connection setting to localStorage
+- [ ] command line tab
+- [ ] select theme
+- [ ] select font-family
+- [ ] add some page/global keyBoard shortcut
+- [ ] add keyBoard shortcut reference page
+- [ ] rename project
+- [ ] choose a software icon
+- [ ] optimize code
+- [ ] write an english README doc
+- [ ] write a chinese README doc
+- [ ] release version 1.0 on github
+- [ ] release on Apple AppStore
 
 ## DevTools
 
