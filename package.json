@@ -14,6 +14,7 @@
     "build": "cross-env NODE_ENV=production BUILD_ENV=prod npm run ts:build"
   },
   "devDependencies": {
+    "@ant-design/aliyun-theme": "^0.0.4",
     "@ant-design/icons": "^4.6.2",
     "@babel/runtime": "^7.13.10",
     "@types/classnames": "^2.2.11",

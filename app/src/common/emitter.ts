@@ -14,6 +14,7 @@ export enum EventTypes {
   ReloadSettings = 'ReloadSettings',
   EditConnectionFinished = 'EditConnectionFinished',
   OpenDelBatch = 'OpenDelBatch',
+  OpenStatus = 'OpenStatus',
   ClickedKey = 'ClickedKey',
   RefreshKeyList = 'RefreshKeyList',
   RemoveAllTab = 'RemoveAllTab',

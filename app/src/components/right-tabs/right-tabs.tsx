@@ -1,5 +1,4 @@
 import React, { useState } from 'react'
-import './right-tabs.less'
 import { message, Tabs } from 'antd'
 import { InfoCircleOutlined, KeyOutlined } from '@ant-design/icons'
 import { useMount, usePersistFn } from 'ahooks'
@@ -7,15 +6,19 @@ import utils from '@/src/common/utils'
 import { i18n } from '@/src/i18n/i18n'
 import { $bus, EventTypes } from '@/src/common/emitter'
 import { KeyDetail } from '@/src/components/key-detail/key-detail'
+import { RedisStatus } from '@/src/components/redis-status'
+import './right-tabs.less'
 
 const { TabPane } = Tabs
+
+type TabType = 'status' | 'key'
 
 interface TabPaneItem {
   title: string
   key: string
-  redisKey: string
-  tabType: string
-  keyType: RedisKeyType
+  redisKey: string | undefined
+  tabType: TabType
+  keyType: RedisKeyType | undefined
   client: IORedisClient
 }
 
@@ -116,6 +119,19 @@ export function RightTabs(): JSX.Element {
       addTab(initKeyTabItem(client, key, type), newTab)
     })
   })
+
+  const addStatusTab = usePersistFn((client, tabName, newTab = true) => {
+    const newTabItem: TabPaneItem = {
+      client,
+      key: utils.cutString(tabName),
+      keyType: undefined,
+      redisKey: '',
+      title: tabName,
+      tabType: 'status',
+    }
+    addTab(newTabItem, newTab)
+  })
+
   const getIconByTabType = usePersistFn((tab) => {
     switch (tab.tabType) {
       case 'key': {
@@ -131,10 +147,15 @@ export function RightTabs(): JSX.Element {
     $bus.on(EventTypes.ClickedKey, (client, key, newTab = false) => {
       addKeyTab(client as IORedisClient, key, newTab)
     })
+
+    $bus.on(EventTypes.OpenStatus, (client, tabName) => {
+      console.log('%c on open status', 'background: black; color: white')
+      addStatusTab(client, tabName)
+    })
   })
 
   return (
-    <Tabs type="editable-card" activeKey={activeKey} hideAdd onChange={onChange} onEdit={onEdit}>
+    <Tabs id="rightTabs" type="editable-card" activeKey={activeKey} hideAdd onChange={onChange} onEdit={onEdit}>
       {tabs.map((tab) => (
         <TabPane
           tab={
@@ -146,8 +167,13 @@ export function RightTabs(): JSX.Element {
           key={tab.key}
           closable={true}
         >
+          {tab.tabType === 'status' && <RedisStatus client={tab.client} />}
           {tab.tabType === 'key' && (
-            <KeyDetail client={tab.client} redisKey={tab.redisKey} keyType={tab.keyType} />
+            <KeyDetail
+              client={tab.client}
+              redisKey={tab.redisKey as string}
+              keyType={tab.keyType as RedisKeyType}
+            />
           )}
         </TabPane>
       ))}

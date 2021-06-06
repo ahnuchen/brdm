@@ -17,9 +17,10 @@ import { $bus, EventTypes } from '@/src/common/emitter'
 
 interface ConnectionMenuProps {
   config: ConnectionConfig
+  client: IORedisClient
 }
 
-export function ConnectionMenu({ config }: ConnectionMenuProps): JSX.Element {
+export function ConnectionMenu({ config, client }: ConnectionMenuProps): JSX.Element {
   const [color, setColor] = useState('#1aad19')
 
   const deleteConnection = usePersistFn(() => {
@@ -29,7 +30,7 @@ export function ConnectionMenu({ config }: ConnectionMenuProps): JSX.Element {
 
   return (
     <div onClick={(event) => event.stopPropagation()} style={{ width: '74px' }} className="flex between">
-      <HomeOutlined />
+      <HomeOutlined onClick={() => {}} />
       <CodeOutlined />
       <ReloadOutlined />
       <Dropdown

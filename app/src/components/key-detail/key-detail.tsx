@@ -9,6 +9,7 @@ import { KeyContentZset } from './key-content-zset'
 import { usePersistFn } from 'ahooks'
 import { message } from 'antd'
 import { i18n } from '@/src/i18n/i18n'
+import { RedisKeyTypes } from '@/src/common/redisKeyTypes'
 
 type KeyContentComponent =
   | typeof KeyContentString
@@ -56,7 +57,7 @@ export function KeyDetail({ client, keyType, redisKey }: KeyDetailProps): JSX.El
   const KeyContent = getComponentNameByType(keyType) as KeyContentComponent
 
   useEffect(() => {
-    if (!['string', 'hash', 'zset', 'set', 'list', 'stream'].includes(keyType)) {
+    if (RedisKeyTypes[keyType] !== keyType) {
       message.error(i18n.$t('key_type_not_support'))
       setKeyTypeSupport(false)
     }

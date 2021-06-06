@@ -86,9 +86,8 @@ export function ConnectionWrapper({ config }: ConnectionWrapperProps): JSX.Eleme
   const afterOpenConnection = usePersistFn((client: IORedisClient, callback?) => {
     if (client.status !== 'ready') {
       client.on('ready', () => {
-        $bus.emit('openStatus', { client, connectionName: config.connectionName })
+        $bus.emit(EventTypes.OpenStatus, client, config.connectionName)
         initShow()
-        console.log('%c client', 'background: pink; color: #000', client, callback)
         callback && callback(client)
       })
     } else {
@@ -143,15 +142,15 @@ export function ConnectionWrapper({ config }: ConnectionWrapperProps): JSX.Eleme
   useMount(() => {
     $bus.on(EventTypes.CloseConnection, closeConnection)
 
-    //TODO 默认打开一个key， 方便开发调试，开发完应该删掉此处
+    //TODO 默认打开一个key/status， 方便开发调试，开发完应该删掉此处
 
-    /*    setActiveKeys(['common'])
+    setActiveKeys(['common'])
     openConnection({
       connectionName: 'common',
       callback(client: IORedisClient) {
-        $bus.emit(EventTypes.ClickedKey, client, 'a:1string', false)
+        // $bus.emit(EventTypes.ClickedKey, client, 'a:1string', false)
       },
-    })*/
+    })
   })
 
   return (
@@ -163,7 +162,7 @@ export function ConnectionWrapper({ config }: ConnectionWrapperProps): JSX.Eleme
       onChange={onCollapseChange}
     >
       <Collapse.Panel
-        extra={<ConnectionMenu config={config} />}
+        extra={<ConnectionMenu config={config} client={client as IORedisClient} />}
         key={config.connectionName}
         header={config.connectionName}
       >

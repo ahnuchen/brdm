@@ -29,5 +29,5 @@ declare global {
     clusterMode?: boolean
   }
   type IORedisClient = IORedis.Redis | IORedis.Cluster
-  type RedisKeyType = typeof RedisKeyTypes
+  type RedisKeyType = 'string' | 'hash' | 'set' | 'list' | 'zset' | 'stream'
 }

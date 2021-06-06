@@ -76,8 +76,12 @@ intl.init({
 
 const i18n = {
   ...intl,
-  $t: function (key: LangKey) {
+  $t: function (key: LangKey): string {
     return intl.get(key)
+  },
+  //format message
+  $f: function (key: LangKey, variables: any): string {
+    return intl.get(key, variables)
   },
 }
 const { antdLocale } = messages[currentLocale]
