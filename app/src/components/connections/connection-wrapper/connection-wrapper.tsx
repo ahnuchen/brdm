@@ -6,6 +6,7 @@ import { useMount, usePersistFn } from 'ahooks'
 import redisClient from '@/src/common/redisClient'
 import { Collapse, message } from 'antd'
 import { RightOutlined, LoadingOutlined } from '@ant-design/icons'
+import { $bus, EventTypes } from '@/src/common/emitter'
 
 interface ConnectionWrapperProps {
   config: ConnectionConfig
@@ -39,7 +40,7 @@ export function ConnectionWrapper({ config }: ConnectionWrapperProps): JSX.Eleme
     closeMenu()
 
     // TODO close all tab after close connection
-    // $tools.$bus.emit($tools.EventTypes.RemoveAllTab)
+    // $bus.emit(EventTypes.RemoveAllTab)
 
     // TODO reset operateItem items
     // operateItemRef.current.resetStatus()
@@ -85,14 +86,13 @@ export function ConnectionWrapper({ config }: ConnectionWrapperProps): JSX.Eleme
   const afterOpenConnection = usePersistFn((client: IORedisClient, callback?) => {
     if (client.status !== 'ready') {
       client.on('ready', () => {
-        $tools.$bus.emit('openStatus', { client, connectionName: config.connectionName })
+        $bus.emit(EventTypes.OpenStatus, client, config.connectionName)
         initShow()
-        console.log('%c client', 'background: pink; color: #000', client, callback)
-        callback && callback()
+        callback && callback(client)
       })
     } else {
       initShow()
-      callback && callback()
+      callback && callback(client)
     }
   })
 
@@ -116,7 +116,7 @@ export function ConnectionWrapper({ config }: ConnectionWrapperProps): JSX.Eleme
         client.on('error', (error) => {
           message.error({
             content: 'Redis Client On Error: ' + error + ' Config right?',
-            duration: 3000,
+            duration: 3,
           })
           closeConnection(config.connectionName)
         })
@@ -140,7 +140,17 @@ export function ConnectionWrapper({ config }: ConnectionWrapperProps): JSX.Eleme
   })
 
   useMount(() => {
-    $tools.$bus.on($tools.EventTypes.CloseConnection, closeConnection)
+    $bus.on(EventTypes.CloseConnection, closeConnection)
+
+    // 默认打开一个key/status， 方便开发调试，开发完应该删掉此处
+
+    /*    setActiveKeys(['common'])
+    openConnection({
+      connectionName: 'common',
+      callback(client: IORedisClient) {
+        $bus.emit(EventTypes.ClickedKey, client, 'a:1string', false)
+      },
+    })*/
   })
 
   return (
@@ -152,12 +162,14 @@ export function ConnectionWrapper({ config }: ConnectionWrapperProps): JSX.Eleme
       onChange={onCollapseChange}
     >
       <Collapse.Panel
-        extra={<ConnectionMenu config={config} />}
+        extra={<ConnectionMenu config={config} client={client as IORedisClient} />}
         key={config.connectionName}
         header={config.connectionName}
       >
         <OperateItem client={client as IORedisClient} ref={operateItemRef} />
-        <KeyList setOpening={setOpening} config={config} client={client as IORedisClient} ref={keyListRef} />
+        {client && (
+          <KeyList setOpening={setOpening} config={config} client={client as IORedisClient} ref={keyListRef} />
+        )}
       </Collapse.Panel>
     </Collapse>
   )

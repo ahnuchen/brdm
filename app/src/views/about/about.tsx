@@ -9,7 +9,6 @@ export default class About extends React.Component<PageProps> {
       <div className="about flex column center" style={{ height: '100%' }}>
         <a
           onClick={() => {
-            $tools.$bus.emit($tools.EventTypes.EasterEgg)
             shell.openExternal('https://github.com/ahnuchen/brdm')
           }}
         >

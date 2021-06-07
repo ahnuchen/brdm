@@ -11,12 +11,6 @@ import { webFrame } from 'electron'
 
 export default (): JSX.Element => {
   useMount(() => {
-    // about页面点击关注监听
-    $tools.$bus.on($tools.EventTypes.EasterEgg, () => {
-      Modal.success({
-        title: 'Thank you for star！',
-      })
-    })
     //  init zoom factor setting
     webFrame.setZoomFactor($tools.settings.appSettings.get('zoomFactor') || 1)
   })

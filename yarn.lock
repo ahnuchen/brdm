@@ -15,6 +15,11 @@
     lodash.debounce "^4.0.8"
     lodash.throttle "^4.1.1"
 
+"@ant-design/aliyun-theme@^0.0.4":
+  version "0.0.4"
+  resolved "https://registry.nlark.com/@ant-design/aliyun-theme/download/@ant-design/aliyun-theme-0.0.4.tgz#d2b6973f300bd3dd10a16b47c89f48d99423eb76"
+  integrity sha1-0raXPzAL090QoWtHyJ9I2ZQj63Y=
+
 "@ant-design/colors@^6.0.0":
   version "6.0.0"
   resolved "https://registry.npm.taobao.org/@ant-design/colors/download/@ant-design/colors-6.0.0.tgz?cache=0&sync_timestamp=1612935512117&other_urls=https%3A%2F%2Fregistry.npm.taobao.org%2F%40ant-design%2Fcolors%2Fdownload%2F%40ant-design%2Fcolors-6.0.0.tgz#9b9366257cffcc47db42b9d0203bb592c13c0298"
@@ -384,6 +389,11 @@
   version "3.0.3"
   resolved "https://registry.npm.taobao.org/@types/minimatch/download/@types/minimatch-3.0.3.tgz?cache=0&other_urls=https%3A%2F%2Fregistry.npm.taobao.org%2F%40types%2Fminimatch%2Fdownload%2F%40types%2Fminimatch-3.0.3.tgz#3dca0e3f33b200fc7d1139c0cd96c1268cadfd9d"
   integrity sha1-PcoOPzOyAPx9ETnAzZbBJoyt/Z0=
+
+"@types/mousetrap@^1.6.8":
+  version "1.6.8"
+  resolved "https://registry.nlark.com/@types/mousetrap/download/@types/mousetrap-1.6.8.tgz?cache=0&sync_timestamp=1621242260159&other_urls=https%3A%2F%2Fregistry.nlark.com%2F%40types%2Fmousetrap%2Fdownload%2F%40types%2Fmousetrap-1.6.8.tgz#448929e6dc21126392830465fdb9d4a2cfc16a88"
+  integrity sha1-RIkp5twhEmOSgwRl/bnUos/Baog=
 
 "@types/node@*":
   version "14.14.9"
@@ -5083,6 +5093,11 @@ moment@^2.24.0, moment@^2.25.3:
   version "2.29.1"
   resolved "https://registry.npm.taobao.org/moment/download/moment-2.29.1.tgz?cache=0&sync_timestamp=1601983320283&other_urls=https%3A%2F%2Fregistry.npm.taobao.org%2Fmoment%2Fdownload%2Fmoment-2.29.1.tgz#b2be769fa31940be9eeea6469c075e35006fa3d3"
   integrity sha1-sr52n6MZQL6e7qZGnAdeNQBvo9M=
+
+mousetrap@^1.6.5:
+  version "1.6.5"
+  resolved "https://registry.npm.taobao.org/mousetrap/download/mousetrap-1.6.5.tgz#8a766d8c272b08393d5f56074e0b5ec183485bf9"
+  integrity sha1-inZtjCcrCDk9X1YHTgtewYNIW/k=
 
 ms@2.0.0:
   version "2.0.0"

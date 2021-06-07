@@ -13,22 +13,24 @@ import { Dropdown, Menu, Tooltip } from 'antd'
 import { ChromePicker } from 'react-color'
 import { i18n } from '@/src/i18n/i18n'
 import { usePersistFn } from 'ahooks'
+import { $bus, EventTypes } from '@/src/common/emitter'
 
 interface ConnectionMenuProps {
   config: ConnectionConfig
+  client: IORedisClient
 }
 
-export function ConnectionMenu({ config }: ConnectionMenuProps): JSX.Element {
+export function ConnectionMenu({ config, client }: ConnectionMenuProps): JSX.Element {
   const [color, setColor] = useState('#1aad19')
 
   const deleteConnection = usePersistFn(() => {
     $tools.storage.deleteConnection(config)
-    $tools.$bus.emit($tools.EventTypes.RefreshConnection)
+    $bus.emit(EventTypes.RefreshConnection)
   })
 
   return (
     <div onClick={(event) => event.stopPropagation()} style={{ width: '74px' }} className="flex between">
-      <HomeOutlined />
+      <HomeOutlined onClick={() => {}} />
       <CodeOutlined />
       <ReloadOutlined />
       <Dropdown

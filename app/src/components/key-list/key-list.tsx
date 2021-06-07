@@ -1,18 +1,10 @@
-import React, {
-  Component,
-  forwardRef,
-  Ref,
-  useEffect,
-  useImperativeHandle,
-  useReducer,
-  useRef,
-  useState,
-} from 'react'
+import React, { forwardRef, Ref, useImperativeHandle, useRef, useState } from 'react'
 import { useMount, usePersistFn } from 'ahooks'
 import { Readable } from 'stream'
 import { i18n } from '@/src/i18n/i18n'
 import { Button, message } from 'antd'
 import { KeyListTree } from '@/src/components/key-list/key-list-tree'
+import { $bus, EventTypes } from '@/src/common/emitter'
 
 interface KeyListProps {
   config: ConnectionConfig
@@ -85,7 +77,6 @@ function KeyListInner({ config, client, setOpening }: KeyListProps, ref: Ref<any
       scanStreams.current.push(stream)
 
       stream.on('data', (keys) => {
-        console.log('%c scan data', 'background: pink; color: #000', keys)
         onePageList.current = onePageList.current.concat(keys)
         // scan once reaches page size
         if (onePageList.current.length >= keysPageSize.current) {
@@ -138,7 +129,7 @@ function KeyListInner({ config, client, setOpening }: KeyListProps, ref: Ref<any
         ) {
           message.error({
             message: i18n.$t('scan_disabled'),
-            duration: 1500,
+            duration: 2,
           })
           setOpening(false)
 
@@ -148,13 +139,13 @@ function KeyListInner({ config, client, setOpening }: KeyListProps, ref: Ref<any
         // other errors
         message.error({
           message: 'Stream On Error: ' + e.message,
-          duration: 1500,
+          duration: 2,
         })
 
         setOpening(false)
 
         setTimeout(() => {
-          $tools.$bus.emit('closeConnection')
+          $bus.emit('closeConnection')
         }, 50)
       })
     })
@@ -189,7 +180,10 @@ function KeyListInner({ config, client, setOpening }: KeyListProps, ref: Ref<any
 
     for (let i = 0; i < keyList.length; i++) {
       if (keyList[i].equals(key)) {
-        setKeyList((k) => k.splice(i, 1))
+        setKeyList((k) => {
+          k.splice(i, 1)
+          return [...k]
+        })
         break
       }
     }
@@ -201,7 +195,7 @@ function KeyListInner({ config, client, setOpening }: KeyListProps, ref: Ref<any
   }))
 
   useMount(() => {
-    $tools.$bus.on($tools.EventTypes.RefreshKeyList, ({ client: c, key, type = 'del' }) => {
+    $bus.on(EventTypes.RefreshKeyList, (c, key, type = 'del') => {
       if (client !== c) {
         return
       }

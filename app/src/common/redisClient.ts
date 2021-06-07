@@ -4,6 +4,7 @@ import { remote } from 'electron'
 import { message } from 'antd'
 import { i18n } from '@/src/i18n/i18n'
 import { AddressInfo } from 'net'
+import { $bus, EventTypes } from '@/src/common/emitter'
 const fs = require('fs')
 
 // fix ioredis hgetall key has been toString()
@@ -99,7 +100,7 @@ class RedisClient {
         // ssh error only on this, not the 'error' argument...
         server.on('error', (error) => {
           message.error(error.message + ' SSH config right?')
-          $tools.$bus.emit($tools.EventTypes.CloseConnection)
+          $bus.emit(EventTypes.CloseConnection)
           // return reject(error);
         })
 
@@ -282,7 +283,7 @@ class RedisClient {
 
     if (times >= maxRetryTimes) {
       message.error('Too Many Attempts To Reconnect. Please Check The Server Status!')
-      $tools.$bus.emit($tools.EventTypes.CloseConnection)
+      $bus.emit(EventTypes.CloseConnection)
       return
     }
 
@@ -310,7 +311,7 @@ class RedisClient {
     } catch (e) {
       // force alert
       alert(i18n.$t('key_no_permission') + `\n[${e.message}]`)
-      $tools.$bus.emit($tools.EventTypes.CloseConnection)
+      $bus.emit(EventTypes.CloseConnection)
 
       return undefined
     }

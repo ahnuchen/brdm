@@ -29,10 +29,6 @@ export default {
     return buf.equals(Buffer.from(buf.toString()))
   },
   bufToString(buf: StringBuffer, forceHex = false) {
-    // if (typeof buf == 'string') {
-    //   return buf;
-    // }
-
     if (!Buffer.isBuffer(buf)) {
       return buf
     }

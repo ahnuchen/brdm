@@ -1,4 +1,9 @@
-import mitt from 'mitt'
+/**
+ * emitter on main thread will make redis client work unexpect
+ * but on renderer thread will not associate in multi window
+ */
+
+import mitt from 'events'
 
 export enum EventTypes {
   Connected = 'Connected',
@@ -9,6 +14,7 @@ export enum EventTypes {
   ReloadSettings = 'ReloadSettings',
   EditConnectionFinished = 'EditConnectionFinished',
   OpenDelBatch = 'OpenDelBatch',
+  OpenStatus = 'OpenStatus',
   ClickedKey = 'ClickedKey',
   RefreshKeyList = 'RefreshKeyList',
   RemoveAllTab = 'RemoveAllTab',
@@ -17,4 +23,4 @@ export enum EventTypes {
   RemovePreTab = 'RemovePreTab',
   OpenCli = 'OpenCli',
 }
-export const $bus = mitt()
+export const $bus = new mitt.EventEmitter()

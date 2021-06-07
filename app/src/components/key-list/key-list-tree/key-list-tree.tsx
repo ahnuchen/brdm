@@ -1,7 +1,10 @@
 import React, { useEffect, useState } from 'react'
 import utils from '@/src/common/utils'
 import { Tree } from 'antd'
-import { DataNode } from 'rc-tree/lib/interface'
+import { DataNode, EventDataNode } from 'rc-tree/lib/interface'
+import './key-list-tree.less'
+import { usePersistFn } from 'ahooks'
+import { $bus, EventTypes } from '@/src/common/emitter'
 
 interface KeyListTreeProps {
   keyList: any[]
@@ -16,25 +19,35 @@ export function KeyListTree({ keyList, client, config }: KeyListTreeProps): JSX.
   const [expandedKeys, setExpandedKeys] = useState<React.Key[]>([])
   const [checkedKeys, setCheckedKeys] = useState<React.Key[]>([])
   const [selectedKeys, setSelectedKeys] = useState<React.Key[]>([])
-  const [autoExpandParent, setAutoExpandParent] = useState<boolean>(false)
 
-  const onExpand = (expandedKeysValue: React.Key[]) => {
-    console.log('onExpand', expandedKeysValue)
-    // if not set autoExpandParent to false, if children expanded, parent can not collapse.
-    // or, you can remove all expanded children keys.
+  const onExpand = usePersistFn((expandedKeysValue: React.Key[]) => {
     setExpandedKeys(expandedKeysValue)
-    setAutoExpandParent(false)
-  }
+  })
 
-  const onCheck = (checkedKeysValue: AnyObj, info: any) => {
-    console.log('onCheck', checkedKeysValue)
+  const onCheck = usePersistFn((checkedKeysValue: AnyObj, info: any) => {
     setCheckedKeys(checkedKeysValue as React.Key[])
-  }
+  })
 
-  const onSelect = (selectedKeysValue: React.Key[], info: any) => {
-    console.log('onSelect', info)
-    setSelectedKeys(selectedKeysValue)
-  }
+  const onClickNode = usePersistFn((node: EventDataNode, nativeEvent: MouseEvent | null, newTab = false) => {
+    const openNewTab = newTab || nativeEvent?.ctrlKey || nativeEvent?.metaKey
+    $bus.emit(EventTypes.ClickedKey, client, node.key, openNewTab)
+  })
+
+  const onSelect = usePersistFn((selectedKeysValue: React.Key[], info: any) => {
+    if (selectedKeysValue?.length !== 0) {
+      setSelectedKeys(selectedKeysValue)
+    }
+    const node: EventDataNode = info.node
+    if (node.children && node.children?.length > 0) {
+      if (!node.expanded) {
+        setExpandedKeys((keys) => keys.concat(node.key))
+      } else {
+        setExpandedKeys((keys) => keys.filter((k) => k !== node.key))
+      }
+    } else if (selectedKeysValue?.length !== 0) {
+      onClickNode(node, info.nativeEvent)
+    }
+  })
 
   useEffect(() => {
     const treeData = separator ? utils.keysToTree(keyList, separator) : utils.keysToList(keyList)
@@ -44,10 +57,11 @@ export function KeyListTree({ keyList, client, config }: KeyListTreeProps): JSX.
   return (
     <ul>
       <Tree
+        checkable={false}
         virtual={true}
         onExpand={onExpand}
         expandedKeys={expandedKeys}
-        autoExpandParent={autoExpandParent}
+        autoExpandParent={false}
         onCheck={onCheck}
         checkedKeys={checkedKeys}
         onSelect={onSelect}
