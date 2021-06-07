@@ -131,8 +131,9 @@ export function ConnectionWrapper({ config }: ConnectionWrapperProps): JSX.Eleme
   const onCollapseChange = usePersistFn((keys) => {
     setActiveKeys(keys)
 
-    // open collapse
-    if (keys.length > 0) {
+    // open collapse, judge of client to prevent scan keys after first open,
+    // user can use refresh button to rescan
+    if (keys.length > 0 && !client) {
       openConnection({
         connectionName: config.connectionName,
       })
@@ -162,7 +163,13 @@ export function ConnectionWrapper({ config }: ConnectionWrapperProps): JSX.Eleme
       onChange={onCollapseChange}
     >
       <Collapse.Panel
-        extra={<ConnectionMenu config={config} client={client as IORedisClient} />}
+        extra={
+          <ConnectionMenu
+            onCollapseChange={onCollapseChange}
+            config={config}
+            client={client as IORedisClient}
+          />
+        }
         key={config.connectionName}
         header={config.connectionName}
       >
