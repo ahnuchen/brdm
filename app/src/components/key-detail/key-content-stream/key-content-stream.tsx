@@ -4,7 +4,10 @@ interface KeyContentStreamProps {
   client: IORedisClient
   redisKey: string
 }
-export function KeyContentStreamInner({ client, redisKey }: KeyContentStreamProps, ref: Ref<any>): JSX.Element {
+export function KeyContentStreamInner(
+  { client, redisKey }: KeyContentStreamProps,
+  ref: Ref<ForwardRefProps>
+): JSX.Element {
   const initShow = usePersistFn(() => {})
 
   useImperativeHandle(ref, () => ({

@@ -1,6 +1,5 @@
 import IORedis, { RedisOptions } from 'ioredis'
 import tunnelssh from 'tunnel-ssh'
-import { RedisKeyTypes } from '@/src/common/redisKeyTypes'
 
 declare global {
   interface SSHOptions extends tunnelssh.Config {
@@ -30,4 +29,8 @@ declare global {
   }
   type IORedisClient = IORedis.Redis | IORedis.Cluster
   type RedisKeyType = 'string' | 'hash' | 'set' | 'list' | 'zset' | 'stream'
+
+  interface ForwardRefProps {
+    initShow(): void
+  }
 }

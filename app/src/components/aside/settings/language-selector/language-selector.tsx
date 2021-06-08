@@ -32,7 +32,6 @@ export function LanguageSelector(): JSX.Element {
             confirmModal.destroy()
           },
         })
-        message.success('')
       }}
     >
       {langs.map((option) => (

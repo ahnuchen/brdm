@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { ForwardedRef, useEffect, useRef, useState } from 'react'
 import { KeyHeader } from './key-header'
 import { KeyContentHash } from './key-content-hash'
 import { KeyContentList } from './key-content-list'
@@ -28,7 +28,7 @@ interface KeyDetailProps {
 export function KeyDetail({ client, keyType, redisKey }: KeyDetailProps): JSX.Element {
   const [keyTypeSupport, setKeyTypeSupport] = useState(true)
 
-  const keyContentRef = useRef<any>(null)
+  const keyContentRef = useRef<ForwardRefProps>(null)
 
   const getComponentNameByType = usePersistFn(
     (keyType): KeyContentComponent => {

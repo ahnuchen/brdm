@@ -66,13 +66,13 @@ const fr = {
     close: 'Fermer',
     open_new_tab: 'Ouvrir dans un nouvel onglet',
     exact_search: 'Recherche exacte',
-    enter_to_exec:
-      'Appuyez sur la touche Entrée pour les commandes d\'exécution, sur les touches haut et bas pour passer à l\'historique',
+    enter_to_exec: 'Appuyez sur la touche Entrée pour les commandes d\'exécution, sur les touches haut et bas pour passer à l\'historique',
     pre_version: 'Version',
     manual_update: 'Téléchargement de la notice',
     retry_too_many_times: 'Trop de tentatives pour se reconnecter. Veuillez vérifier l\'état du serveur',
     key_to_search: 'Mot-clé de recherche',
     begin_update: 'Mise à jour',
+    ignore_this_version: 'Ignorer cette version',
     check_update: 'Vérifier la mise à jour',
     update_checking: 'Vérification des mises à jour, patientez...',
     update_available: 'Nouvelle version trouvée',
@@ -80,57 +80,49 @@ const fr = {
     update_error: 'Mise à jour échouée',
     update_downloading: 'Téléchargement...',
     update_download_progress: 'Téléchargement en cours',
-    update_downloaded:
-      'Téléchargement de la mise à jour terminé, redémarrez l\'application s\'il vous plaît.\
+    update_downloaded: 'Téléchargement de la mise à jour terminé, redémarrez l\'application s\'il vous plaît.\
     [Tips]: Si vous utilisez Windows, après avoir fermé l\'application, attendez que l\'icône du bureau soit actualisée à un état normal (environ 10 secondes), puis vous pouvez la rouvrir',
-    mac_not_support_auto_update:
-      'Les Mac ne supportent pas les mises à jour automatique, vous pouvez <a href="https://github.com/qishibo/AnotherRedisDesktopManager/releases">télécharger</a> et réinstaller manuellement,\
+    mac_not_support_auto_update: 'Les Mac ne supportent pas les mises à jour automatique, vous pouvez <a href="https://github.com/qishibo/AnotherRedisDesktopManager/releases">télécharger</a> et réinstaller manuellement,\
     ou lancer "brew reinstall --cask another-redis-desktop-manager"\
     <br><br>🧡si cela vous est utile, vous pouvez sponsoriser via l\'<a href="https://apps.apple.com/app/id1516451072">AppStore</a>, et l\'AppStore le mettra automatiquement à jour pour vous.',
     font_family: 'Famille de polices',
     font_faq_title: 'Instructions de configuration de polices',
-    font_faq:
-      '1. Plusieurs polices peuvent être paramétrées<br>\
+    font_faq: '1. Plusieurs polices peuvent être paramétrées<br>\
     2. La sélection des polices est ordonnée. Il est suggéré de choisir d\'abord la police anglaise et ensuite la police de votre langue<br>\
     3. Dans certains cas exceptionnels, lorsque la liste des polices du système ne peut être chargée, vous pouvez saisir manuellement le nom de la police installée.',
-    private_key_faq:
-      'La clé privée au format RSA est prise en charge, commançant par <pre>-----BEGIN RSA PRIVATE KEY-----</pre>\
+    private_key_faq: 'La clé privée au format RSA est prise en charge, commançant par <pre>-----BEGIN RSA PRIVATE KEY-----</pre>\
     pour commencer par <pre>-----BEGIN OPENSSH PRIVATE KEY-----</pre> vous devez convertir le format via <pre>ssh-keygen -p -m pem -f ~/.ssh/id_rsa</pre> Cette opéaration n\'affectera pas la précédente clé de connexion',
     dark_mode: 'Mode sombre',
     load_more_keys: 'charger plus',
     key_name: 'Nom de la clé',
     project_home: 'Accueil du projet',
-    cluster_faq:
-      'Sélectionnez n\'importe quel nœud du cluster à remplir, et les autres nœuds seront identifiés automatiquement.',
+    cluster_faq: 'Sélectionnez n\'importe quel nœud du cluster à remplir, et les autres nœuds seront identifiés automatiquement.',
     redis_status: 'Statut Redis',
     confirm_flush_db: 'Supprimer toutes les clés dans la base de données {db} ?',
     flushdb: 'Sauvegarde de la base de données',
-    info_disabled:
-      'Exception d\'exécution de la commande Info (peut avoir été désactivée), l\'info redis ne peut pas être affichée',
+    flushdb_prompt: 'Entrer "{txt}"',
+    info_disabled: 'Exception d\'exécution de la commande Info (peut avoir été désactivée), l\'info redis ne peut pas être affichée',
     page_zoom: 'Agrandir la page',
-    scan_disabled:
-      'Exception d\'exécution de la commande Scan (peut avoir été désactivée), la liste des clés ne peut pas être affichée',
-    key_type_not_support:
-      'L\'affichage visuel n\'est pas pris en charge pour ce type. Veuillez utiliser la console',
+    scan_disabled: 'Exception d\'exécution de la commande Scan (peut avoir été désactivée), la liste des clés ne peut pas être affichée',
+    key_type_not_support: 'L\'affichage visuel n\'est pas pris en charge pour ce type. Veuillez utiliser la console',
     delete_folder: 'Analyser et supprimer tout le dossier',
     multiple_select: 'Sélection multiple',
     copy: 'Copie',
+    copy_success: 'Copier avec succès',
     keys_to_be_deleted: 'Clés à supprimer',
     delete_all: 'Supprimer tout',
     clear_cache: 'Vider le cache',
     mark_color: 'Couleur de la marque',
-    key_no_permission:
-      'L\'autorisation de lecture de fichier a expiré, veuillez resélectionner le fichier de clé manuellement',
+    key_no_permission: 'L\'autorisation de lecture de fichier a expiré, veuillez resélectionner le fichier de clé manuellement',
     toggle_check_all: 'Tout sélectionner | Tout désélectionner',
     select_lang: 'Choisir la langue',
-    clear_cache_tip:
-      'Lorsqu\'un problème survient avec le client, cette action supprime toutes les connexions et configurations pour récupérer le client',
+    clear_cache_tip: 'Lorsqu\'un problème survient avec le client, cette action supprime toutes les connexions et configurations pour récupérer le client',
     detail: 'Détail',
-    separator_tip:
-      'Le séparateur de l\'arborescence, défini sur vide pour désactiver l\'arborescence et afficher les clés sous forme de liste',
-    confirm_modify_unvisible_content:
-      'Le contenu contient des caractères invisibles, vous pouvez éditer en toute sécurité dans le "Hex View". Si continuer à modifier dans le "Text View" peut provoquer des erreurs de codage, assurez-vous de continuer?',
+    separator_tip: 'Le séparateur de l\'arborescence, défini sur vide pour désactiver l\'arborescence et afficher les clés sous forme de liste',
+    confirm_modify_unvisible_content: 'Le contenu contient des caractères invisibles, vous pouvez éditer en toute sécurité dans le "Hex View". Si continuer à modifier dans le "Text View" peut provoquer des erreurs de codage, assurez-vous de continuer?',
+    keys_per_loading: 'Nombre de clés',
+    keys_per_loading_tip: 'Le nombre de clés chargées à chaque fois. Un paramètre trop grand peut affecter les performances',
   },
-}
+};
 
-export default fr
+export default fr;

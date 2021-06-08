@@ -9,6 +9,7 @@ import ptBrLocale from 'antd/es/locale/pt_BR'
 import deLocale from 'antd/es/locale/de_DE'
 import frLocale from 'antd/es/locale/fr_FR'
 import uaLocale from 'antd/es/locale/uk_UA'
+import itLocale from 'antd/es/locale/it_IT'
 
 import en from './langs/en'
 import cn from './langs/cn'
@@ -19,6 +20,7 @@ import pt from './langs/pt'
 import de from './langs/de'
 import fr from './langs/fr'
 import ua from './langs/ua'
+import it from './langs/it'
 
 const messages = {
   en: {
@@ -56,6 +58,10 @@ const messages = {
   ua: {
     message: ua.message,
     antdLocale: uaLocale,
+  },
+  it: {
+    message: it.message,
+    antdLocale: itLocale,
   },
 }
 

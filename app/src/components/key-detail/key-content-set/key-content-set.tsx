@@ -4,7 +4,10 @@ interface KeyContentSetProps {
   client: IORedisClient
   redisKey: string
 }
-export function KeyContentSetInner({ client, redisKey }: KeyContentSetProps, ref: Ref<any>): JSX.Element {
+export function KeyContentSetInner(
+  { client, redisKey }: KeyContentSetProps,
+  ref: Ref<ForwardRefProps>
+): JSX.Element {
   const initShow = usePersistFn(() => {})
 
   useImperativeHandle(ref, () => ({

@@ -77,10 +77,7 @@ function OperateItemInner({ client }: OperateItemInnerProps, ref: Ref<any>): JSX
       })
       // select is not allowed in cluster mode
       .catch((e) => {
-        message.error({
-          content: e.message,
-          duration: 3,
-        })
+        message.error(e.message, 3)
 
         // reset to db0
         setSelectedDbIndex(() => 0)

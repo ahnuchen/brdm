@@ -49,18 +49,12 @@ export function KeyHeader({ client, redisKey, keyType, refreshContent }: KeyHead
         const redisKeyBuffer = Buffer.from(redisKey)
         client.del(redisKeyBuffer).then((reply) => {
           if (reply === 1) {
-            message.success({
-              content: i18n.$t('delete_success'),
-              duration: 1,
-            })
+            message.success(i18n.$t('delete_success'), 1)
 
             $bus.emit(EventTypes.RemovePreTab)
             refreshKeyList(redisKeyBuffer)
           } else {
-            message.error({
-              content: `${redisKey} ${i18n.$t('delete_failed')}`,
-              duration: 1,
-            })
+            message.error(`${redisKey} ${i18n.$t('delete_failed')}`, 1)
           }
         })
       },

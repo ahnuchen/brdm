@@ -72,6 +72,7 @@ const tw = {
     retry_too_many_times: '嘗試重連次數過多，請檢查伺服器狀態',
     key_to_search: '輸入關鍵字搜尋',
     begin_update: '更新',
+    ignore_this_version: '忽略此版本',
     check_update: '檢查更新',
     update_checking: '檢查更新中, 請稍後...',
     update_available: '發現新版本',
@@ -79,20 +80,16 @@ const tw = {
     update_error: '更新失敗',
     update_downloading: '下載中...',
     update_download_progress: '下載進度',
-    update_downloaded:
-      '更新下載完成，重啟用戶端生效.\
+    update_downloaded: '更新下載完成，重啟用戶端生效.\
     [Tips]: 如果您使用的是Windows，請在關閉應用程序後等待桌面圖標刷新到正常狀態（大約10秒），然後重新打開',
-    mac_not_support_auto_update:
-      'Mac 暫時不支援自動更新，請手動<a href="https://github.com/qishibo/AnotherRedisDesktopManager/releases">下載</a>後重新安裝，\
+    mac_not_support_auto_update: 'Mac 暫時不支援自動更新，請手動<a href="https://github.com/qishibo/AnotherRedisDesktopManager/releases">下載</a>後重新安裝，\
     或者執行brew reinstall --cask another-redis-desktop-manager\
     <br><br>🧡如果對您有用，您可以通過<a href="https://apps.apple.com/app/id1516451072">AppStore</a>贊助，AppStore會自動為您更新。',
     font_family: '字體選擇',
     font_faq_title: '字體設定說明',
-    font_faq:
-      '1. 可以設定多個字體<br>2. 字體選擇是有分先後順序的，建議首先選擇英文字體，然後再選擇中文字體<br>\
+    font_faq: '1. 可以設定多個字體<br>2. 字體選擇是有分先後順序的，建議首先選擇英文字體，然後再選擇中文字體<br>\
     3. 某些異常情況無法載入系統字體列表時，可以手動輸入已安裝的字體名稱',
-    private_key_faq:
-      '目前支持RSA格式私鑰，即以<pre>-----BEGIN RSA PRIVATE KEY-----</pre>開頭，\
+    private_key_faq: '目前支持RSA格式私鑰，即以<pre>-----BEGIN RSA PRIVATE KEY-----</pre>開頭，\
     以<pre>-----BEGIN OPENSSH PRIVATE KEY-----</pre>開頭的，需要執行\
     <pre>ssh-keygen -p -m pem -f ~/.ssh/id_rsa</pre>進行格式轉換後再使用，該操作不會影響以前的私鑰登入',
     dark_mode: '深色模式',
@@ -103,6 +100,7 @@ const tw = {
     redis_status: 'Redis訊息',
     confirm_flush_db: '確認刪除db{db}中的所有鍵值嗎？',
     flushdb: '刪除所有鍵',
+    flushdb_prompt: '輸入 "{txt}"',
     info_disabled: 'Info命令執行異常（可能已被禁用），無法顯示Redis訊息',
     page_zoom: '頁面縮放',
     scan_disabled: 'Scan命令執行異常（可能已被禁用），無法顯示key列表',
@@ -110,6 +108,7 @@ const tw = {
     delete_folder: '掃描並刪除整個資料夾',
     multiple_select: '多項選擇',
     copy: '複製',
+    copy_success: '複製成功',
     keys_to_be_deleted: '即將刪除的鍵',
     delete_all: '全部删除',
     clear_cache: '清除緩存',
@@ -120,9 +119,10 @@ const tw = {
     clear_cache_tip: '如果客戶端出現問題，此操作將刪除所有連接和配置以恢復客戶端',
     detail: '詳情',
     separator_tip: '樹視圖的分隔符，設置為空可禁用樹並將鍵顯示為列表',
-    confirm_modify_unvisible_content:
-      '內容包含不可見的字符，您可以在Hex視圖中進行安全編輯。如果繼續在Text視圖中進行編輯可能會導致編碼錯誤，確定要繼續嗎？',
+    confirm_modify_unvisible_content: '內容包含不可見的字符，您可以在Hex視圖中進行安全編輯。如果繼續在Text視圖中進行編輯可能會導致編碼錯誤，確定要繼續嗎？',
+    keys_per_loading: '加載數量',
+    keys_per_loading_tip: '每次加載的key數量, 設置太大的話可能會影響使用性能',
   },
-}
+};
 
-export default tw
+export default tw;

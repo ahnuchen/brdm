@@ -4,7 +4,10 @@ interface KeyContentHashProps {
   client: IORedisClient
   redisKey: string
 }
-function KeyContentHashInner({ client, redisKey }: KeyContentHashProps, ref: Ref<any>): JSX.Element {
+function KeyContentHashInner(
+  { client, redisKey }: KeyContentHashProps,
+  ref: Ref<ForwardRefProps>
+): JSX.Element {
   const initShow = usePersistFn(() => {})
 
   useImperativeHandle(ref, () => ({
