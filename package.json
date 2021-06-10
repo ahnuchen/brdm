@@ -69,6 +69,7 @@
     "mitt": "^2.1.0",
     "mousetrap": "^1.6.5",
     "optimize-css-assets-webpack-plugin": "^5.0.4",
+    "php-serialize": "^4.0.2",
     "prettier": "^2.2.1",
     "react": "^17.0.2",
     "react-color": "^2.19.3",

@@ -142,13 +142,13 @@ export function ConnectionWrapper({ config }: ConnectionWrapperProps): JSX.Eleme
 
     //TODO 默认打开一个key/status， 方便开发调试，开发完应该删掉此处
 
-    setActiveKeys(['common'])
-    openConnection({
-      connectionName: 'common',
-      callback(client: IORedisClient) {
-        $bus.emit(EventTypes.ClickedKey, client, '123123', false)
-      },
-    })
+    // setActiveKeys(['common'])
+    // openConnection({
+    //   connectionName: 'common',
+    //   callback(client: IORedisClient) {
+    //     $bus.emit(EventTypes.ClickedKey, client, '123123', false)
+    //   },
+    // })
   })
 
   return (

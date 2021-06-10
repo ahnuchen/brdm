@@ -1,4 +1,4 @@
-import { RightClickMenu } from '@/src/components/key-list/right-click-menu'
+import phpSerialize from 'php-serialize'
 
 type StringBuffer = string | Buffer
 
@@ -80,6 +80,14 @@ export default {
     try {
       const obj = JSON.parse(string)
       return !!obj && typeof obj === 'object'
+    } catch (e) {}
+
+    return false
+  },
+  isPHPSerialize(str: StringBuffer) {
+    try {
+      phpSerialize.unserialize(str)
+      return true
     } catch (e) {}
 
     return false

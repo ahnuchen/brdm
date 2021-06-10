@@ -1,4 +1,4 @@
-import React, { forwardRef, Ref, useImperativeHandle, useState } from 'react'
+import React, { forwardRef, Ref, useImperativeHandle, useRef, useState } from 'react'
 import { useMount, usePersistFn } from 'ahooks'
 import utils from '@/src/common/utils'
 import { Button, message } from 'antd'
@@ -14,10 +14,12 @@ export function KeyContentStringInner(
 ): JSX.Element {
   const [content, setContent] = useState(Buffer.from(''))
   const [oldContent, setOldContent] = useState(Buffer.from(''))
+  const formatViewerRef = useRef<ForwardRefProps>(null)
 
   const initShow = usePersistFn(() => {
     client.getBuffer(redisKey).then((reply) => {
       setContent(reply)
+      formatViewerRef.current && formatViewerRef.current.initShow()
     })
   })
 
@@ -42,7 +44,7 @@ export function KeyContentStringInner(
 
   return (
     <div>
-      <FormatViewer setContent={setOldContent} content={content} />
+      <FormatViewer ref={formatViewerRef} disabled={false} setContent={setOldContent} content={content} />
       <Button type="primary" onClick={save}>
         {i18n.$t('save')}
       </Button>
