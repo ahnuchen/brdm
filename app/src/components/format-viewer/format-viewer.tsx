@@ -67,7 +67,6 @@ function FormatViewerInner(
   }))
 
   const ViewerType = useMemo(() => getViewerTypeBySelect(selectedView), [selectedView])
-  console.log('%c ViewerType', 'background: pink; color: #000', ViewerType)
   return (
     <div>
       <div className="flex center-v">

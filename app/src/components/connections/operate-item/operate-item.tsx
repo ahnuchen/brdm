@@ -141,7 +141,7 @@ function OperateItemInner({ client }: OperateItemInnerProps, ref: Ref<any>): JSX
   return (
     <div>
       <Row className="flex center">
-        <Select className="flex-1" onChange={changeDb} defaultValue={dbs[0]}>
+        <Select showSearch className="flex-1" onChange={changeDb} defaultValue={dbs[0]}>
           {dbs.map((db) => (
             <Select.Option key={db} value={db}>
               db{db}

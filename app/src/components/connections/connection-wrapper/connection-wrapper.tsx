@@ -11,16 +11,7 @@ import { $bus, EventTypes } from '@/src/common/emitter'
 interface ConnectionWrapperProps {
   config: ConnectionConfig
 }
-function randomString(len = 32) {
-  const $chars =
-    'ABCDEFGHJKMNPQRSTWXYZabcdefhijkmnprstwxyz2345678' /****默认去掉了容易混淆的字符oOLl,9gq,Vv,Uu,I1****/
-  const maxPos = $chars.length
-  let pwd = ''
-  for (let i = 0; i < len; i++) {
-    pwd += $chars.charAt(Math.floor(Math.random() * maxPos))
-  }
-  return pwd
-}
+
 export function ConnectionWrapper({ config }: ConnectionWrapperProps): JSX.Element {
   const operateItemRef = useRef<any>()
   const keyListRef = useRef<any>()
@@ -142,13 +133,13 @@ export function ConnectionWrapper({ config }: ConnectionWrapperProps): JSX.Eleme
 
     //TODO 默认打开一个key/status， 方便开发调试，开发完应该删掉此处
 
-    // setActiveKeys(['common'])
-    // openConnection({
-    //   connectionName: 'common',
-    //   callback(client: IORedisClient) {
-    //     $bus.emit(EventTypes.ClickedKey, client, '123123', false)
-    //   },
-    // })
+    setActiveKeys(['common'])
+    openConnection({
+      connectionName: 'common',
+      callback(client: IORedisClient) {
+        $bus.emit(EventTypes.ClickedKey, client, 'a:1set', false)
+      },
+    })
   })
 
   return (

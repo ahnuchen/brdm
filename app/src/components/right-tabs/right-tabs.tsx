@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react'
-import { message, Tabs } from 'antd'
+import { BackTop, message, Tabs } from 'antd'
 import { InfoCircleOutlined, KeyOutlined } from '@ant-design/icons'
 import { useMount, usePersistFn } from 'ahooks'
 import utils from '@/src/common/utils'
@@ -190,6 +190,7 @@ export function RightTabs(): JSX.Element {
               keyType={tab.keyType as RedisKeyType}
             />
           )}
+          <BackTop target={() => document.querySelector('#rightTabs') as HTMLElement} />
         </TabPane>
       ))}
     </Tabs>

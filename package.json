@@ -103,5 +103,10 @@
   "bugs": {
     "url": "https://github.com/ahnuchen/brdm/issues"
   },
-  "homepage": "https://github.com/ahnuchen/brdm#readme"
+  "homepage": "https://github.com/ahnuchen/brdm#readme",
+  "dependencies": {
+    "@types/json-bigint": "^1.0.0",
+    "json-bigint": "^1.0.0",
+    "react-json-view": "^1.21.3"
+  }
 }
