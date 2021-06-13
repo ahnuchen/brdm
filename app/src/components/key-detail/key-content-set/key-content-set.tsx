@@ -244,19 +244,15 @@ export function KeyContentSetInner(
         columns={columns}
         dataSource={data}
       />
-      {utils.bufToString(selectedContent) && (
-        <>
-          <FormatViewer
-            ref={formatViewRef}
-            content={currentContent}
-            setContent={setCurrentContent}
-            disabled={false}
-          />
-          <Button className="mt-4" onClick={editLine} disabled={selectedContent === currentContent}>
-            {i18n.$t('save')}
-          </Button>
-        </>
-      )}
+      <FormatViewer
+        ref={formatViewRef}
+        content={currentContent}
+        setContent={setCurrentContent}
+        disabled={false}
+      />
+      <Button className="mt-4" onClick={editLine} disabled={selectedContent.equals(currentContent)}>
+        {i18n.$t('save')}
+      </Button>
       <Modal
         visible={visible}
         onOk={addLine}

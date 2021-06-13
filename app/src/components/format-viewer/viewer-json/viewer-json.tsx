@@ -1,8 +1,9 @@
-import React, { Dispatch, Ref, SetStateAction, useMemo } from 'react'
-import ReactJson, { ReactJsonViewProps } from 'react-json-view'
+import React, { Dispatch, Ref, SetStateAction, useMemo, useState } from 'react'
+import ReactJson from 'react-json-view'
 import JSONBigInt from 'json-bigint'
 import { i18n } from '@/src/i18n/i18n'
 import utils from '@/src/common/utils'
+import { Alert } from 'antd'
 
 const JSONBig = JSONBigInt({ storeAsString: true })
 
@@ -14,24 +15,24 @@ interface ViewerJsonProps {
 }
 
 export function ViewerJson({ content }: ViewerJsonProps, ref: Ref<ForwardRefProps>): JSX.Element {
+  const [parseFailed, setParseFailed] = useState(false)
   const newContent = useMemo(() => {
     try {
       const transedJson = JSONBig.stringify(JSONBig.parse(utils.bufToString(content)))
       return JSON.parse(transedJson)
     } catch (e) {
+      setParseFailed(true)
       return false
     }
   }, [content])
 
   return (
     <div>
-      <ReactJson
-        displayDataTypes={false}
-        displayObjectSize={true}
-        theme="rjv-default"
-        name={null}
-        src={newContent}
-      />
+      {parseFailed ? (
+        <Alert type="error" description="🤷‍♂️" message={i18n.$t('json_format_failed')} />
+      ) : (
+        <ReactJson displayDataTypes={false} theme="rjv-default" name={null} src={newContent} />
+      )}
     </div>
   )
 }

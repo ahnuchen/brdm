@@ -1,10 +1,12 @@
 import React, { forwardRef, Ref, useImperativeHandle, useState } from 'react'
 import { useMount, usePersistFn } from 'ahooks'
 import { Button, Checkbox, Divider, Form, Input, message, Modal, Row, Select } from 'antd'
+import { encode } from '@msgpack/msgpack'
 import { $bus, EventTypes } from '@/src/common/emitter'
 import { PlusOutlined } from '@ant-design/icons'
 import { i18n } from '@/src/i18n/i18n'
 import { RedisKeyTypes } from '@/src/common/redisKeyTypes'
+import utils from '@/src/common/utils'
 
 interface OperateItemInnerProps {
   client: IORedisClient
@@ -102,10 +104,23 @@ function OperateItemInner({ client }: OperateItemInnerProps, ref: Ref<any>): JSX
     setnewKeyDialog(false)
   })
 
+  const object = {
+    nil: null,
+    integer: 333,
+    float: Math.PI,
+    string: 'Hello, world!',
+    binary: Uint8Array.from([1, 2, 3]),
+    array: [13, '20', false],
+    map: { foo: 'bar' },
+    timestampExt: new Date(),
+  }
+
+  const encoded: Uint8Array = encode(object)
+
   const setDefaultValue = usePersistFn((key, type) => {
     switch (type) {
       case 'string': {
-        return client.set(key, '')
+        return client.set(key, Buffer.from(encoded))
       }
       case 'hash': {
         return client.hset(key, 'New field', 'New value')

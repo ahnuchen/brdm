@@ -105,8 +105,10 @@
   },
   "homepage": "https://github.com/ahnuchen/brdm#readme",
   "dependencies": {
+    "@msgpack/msgpack": "^2.7.0",
     "@types/json-bigint": "^1.0.0",
     "json-bigint": "^1.0.0",
+    "php-unserialize": "0.0.1",
     "react-json-view": "^1.21.3"
   }
 }

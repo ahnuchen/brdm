@@ -20,6 +20,8 @@ interface FormatViewerProps {
   disabled: boolean
 }
 
+type ViewOption = 'Text' | 'Hex' | 'Json' | 'Binary' | 'Msgpack' | 'Unserialize'
+
 function FormatViewerInner(
   { content, setContent, disabled }: FormatViewerProps,
   ref: Ref<ForwardRefProps>
@@ -34,7 +36,7 @@ function FormatViewerInner(
   }
   const viewers = Object.keys(viewerTypeMap)
   const contentVisible = utils.bufVisible(content)
-  const [selectedView, select] = useState('')
+  const [selectedView, select] = useState<ViewOption>('Text')
 
   const getViewerTypeBySelect = usePersistFn(
     (select: typeof selectedView): ViewTypeComponent => {
@@ -55,6 +57,10 @@ function FormatViewerInner(
     // php unserialize
     else if (utils.isPHPSerialize(content)) {
       select('Unserialize')
+    }
+    // msgpack
+    else if (utils.isMsgpack(content)) {
+      select('Msgpack')
     }
     // hex
     else if (!contentVisible) {
@@ -85,7 +91,8 @@ function FormatViewerInner(
           ))}
         </Radio.Group>
         <CopyTwoTone className="cursor-pointer ml-8" onClick={copyContent} />
-        <span className="ml-2 text-info">size: {Buffer.byteLength(content)}</span>
+        {!contentVisible && <span className="text-success">[Binary]</span>}
+        <span className="ml-2 text-info">size: {utils.humanFileSize(Buffer.byteLength(content))}</span>
       </div>
       {ViewerType && (
         <div className="mt-8">

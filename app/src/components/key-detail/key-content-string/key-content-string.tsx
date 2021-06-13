@@ -13,17 +13,19 @@ export function KeyContentStringInner(
   ref: Ref<ForwardRefProps>
 ): JSX.Element {
   const [content, setContent] = useState(Buffer.from(''))
+  const [editContent, setEditContent] = useState(content)
   const formatViewerRef = useRef<ForwardRefProps>(null)
 
   const initShow = usePersistFn(() => {
     client.getBuffer(redisKey).then((reply) => {
       setContent(reply)
+      setEditContent(reply)
       formatViewerRef.current && formatViewerRef.current.initShow()
     })
   })
 
   const save = usePersistFn(() => {
-    client.set(redisKey, content).then((reply) => {
+    client.set(redisKey, editContent).then((reply) => {
       if (reply === 'OK') {
         initShow()
         message.success(i18n.$t('modify_success'), 1)
@@ -43,8 +45,8 @@ export function KeyContentStringInner(
 
   return (
     <div>
-      <FormatViewer ref={formatViewerRef} disabled={false} setContent={setContent} content={content} />
-      <Button type="primary" onClick={save}>
+      <FormatViewer ref={formatViewerRef} disabled={false} setContent={setEditContent} content={editContent} />
+      <Button className="mt-4" type="primary" onClick={save} disabled={content.equals(editContent)}>
         {i18n.$t('save')}
       </Button>
     </div>

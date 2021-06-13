@@ -1,4 +1,5 @@
-import phpSerialize from 'php-serialize'
+import { unserialize } from 'php-serialize'
+import { decode } from '@msgpack/msgpack'
 
 type StringBuffer = string | Buffer
 
@@ -84,9 +85,16 @@ export default {
 
     return false
   },
+  isMsgpack(str: any) {
+    try {
+      decode(str)
+      return true
+    } catch (e) {}
+    return false
+  },
   isPHPSerialize(str: StringBuffer) {
     try {
-      phpSerialize.unserialize(str)
+      unserialize(str)
       return true
     } catch (e) {}
 

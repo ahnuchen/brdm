@@ -1,7 +1,6 @@
-import React, { Dispatch, Ref, SetStateAction, useEffect, useRef, useState } from 'react'
-import utils from '@/src/common/utils'
+import React, { Dispatch, Ref, SetStateAction, useRef } from 'react'
 import { Input } from 'antd'
-import { useMount, usePersistFn, useUpdate } from 'ahooks'
+import { useMount, usePersistFn } from 'ahooks'
 import { TextAreaRef } from 'antd/es/input/TextArea'
 
 interface ViewerTextProps {
@@ -18,7 +17,7 @@ export function ViewerText({ content, setContent }: ViewerTextProps, ref: Ref<Fo
     inputRef.current && inputRef.current?.focus({ cursor: 'end' })
   })
 
-  useEffect(focusTextArea, [content])
+  useMount(focusTextArea)
 
   return (
     <Input.TextArea
@@ -27,7 +26,7 @@ export function ViewerText({ content, setContent }: ViewerTextProps, ref: Ref<Fo
       onChange={(event) => {
         setContent(Buffer.from(event.target.value))
       }}
-      value={utils.bufToString(content)}
+      value={content.toString()}
     />
   )
 }

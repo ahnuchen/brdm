@@ -135,7 +135,7 @@ export function ConnectionWrapper({ config }: ConnectionWrapperProps): JSX.Eleme
     openConnection({
       connectionName: 'common',
       callback(client: IORedisClient) {
-        $bus.emit(EventTypes.ClickedKey, client, '312312', false)
+        $bus.emit(EventTypes.ClickedKey, client, '1111', false)
       },
     })
   }
