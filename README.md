@@ -14,10 +14,10 @@ npm run dev
 
 ## TODO
 - [x] key hdeader
-- [ ] string key content
+- [x] string key content
 - [ ] hash key content
 - [ ] list key content
-- [ ] set key content
+- [x] set key content
 - [ ] zset key content
 - [ ] list key content
 - [ ] search key
@@ -28,8 +28,7 @@ npm run dev
 - [ ] command line tab
 - [ ] select theme
 - [ ] select font-family
-- [ ] add some page/global keyBoard shortcut
-- [ ] add keyBoard shortcut reference page
+- [x] add some page/global keyBoard shortcut
 - [ ] rename project
 - [ ] choose a software icon
 - [ ] optimize code
