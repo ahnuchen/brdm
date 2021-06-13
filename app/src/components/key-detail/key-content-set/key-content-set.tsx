@@ -1,5 +1,6 @@
 import React, { forwardRef, Ref, useImperativeHandle } from 'react'
 import { usePersistFn } from 'ahooks'
+import { FormatViewer } from '@/src/components/format-viewer'
 interface KeyContentSetProps {
   client: IORedisClient
   redisKey: string
@@ -14,7 +15,11 @@ export function KeyContentSetInner(
     initShow,
   }))
 
-  return <div>KeyContentSet</div>
+  return (
+    <div>
+      <div>{redisKey}</div>
+    </div>
+  )
 }
 
 export const KeyContentSet = forwardRef(KeyContentSetInner)
