@@ -1,8 +1,10 @@
 import React, { Dispatch, forwardRef, Ref, SetStateAction, useImperativeHandle, useMemo, useState } from 'react'
-import { Radio } from 'antd'
+import { message, Radio } from 'antd'
 import { usePersistFn } from 'ahooks'
 import utils from '@/src/common/utils'
 import { ViewerBinary, ViewerHex, ViewerJson, ViewerMsgpack, ViewerText, ViewerUnserialize } from './'
+import { CopyTwoTone } from '@ant-design/icons'
+import { i18n } from '@/src/i18n/i18n'
 
 type ViewTypeComponent =
   | typeof ViewerBinary
@@ -62,6 +64,11 @@ function FormatViewerInner(
     }
   })
 
+  const copyContent = usePersistFn(() => {
+    require('electron').clipboard.writeText(utils.bufToString(content))
+    message.success(i18n.$t('copy_success'), 1)
+  })
+
   useImperativeHandle(ref, () => ({
     initShow,
   }))
@@ -77,15 +84,18 @@ function FormatViewerInner(
             </Radio.Button>
           ))}
         </Radio.Group>
-        <span className="ml-8 text-info">size: {Buffer.byteLength(content)}</span>
+        <CopyTwoTone className="cursor-pointer ml-8" onClick={copyContent} />
+        <span className="ml-2 text-info">size: {Buffer.byteLength(content)}</span>
       </div>
       {ViewerType && (
-        <ViewerType
-          disabled={disabled}
-          contentVisible={contentVisible}
-          content={content}
-          setContent={setContent}
-        />
+        <div className="mt-8">
+          <ViewerType
+            disabled={disabled}
+            contentVisible={contentVisible}
+            content={content}
+            setContent={setContent}
+          />
+        </div>
       )}
     </div>
   )

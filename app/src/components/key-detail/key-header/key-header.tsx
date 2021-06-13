@@ -137,7 +137,8 @@ export function KeyHeader({ client, redisKey, keyType, refreshContent }: KeyHead
     message.success({
       content: (
         <div>
-          <Tag>{redisKey}</Tag> copied to clipboard`
+          <Tag>{redisKey}</Tag>
+          {i18n.$t('copy_success')}
         </div>
       ),
       duration: 1,

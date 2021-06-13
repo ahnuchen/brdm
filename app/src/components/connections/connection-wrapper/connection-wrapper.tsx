@@ -128,18 +128,21 @@ export function ConnectionWrapper({ config }: ConnectionWrapperProps): JSX.Eleme
     }
   })
 
-  useMount(() => {
-    $bus.on(EventTypes.CloseConnection, closeConnection)
-
+  const openDefaultKey = () => {
     //TODO 默认打开一个key/status， 方便开发调试，开发完应该删掉此处
 
     setActiveKeys(['common'])
     openConnection({
       connectionName: 'common',
       callback(client: IORedisClient) {
-        $bus.emit(EventTypes.ClickedKey, client, 'a:1set', false)
+        $bus.emit(EventTypes.ClickedKey, client, '312312', false)
       },
     })
+  }
+
+  useMount(() => {
+    $bus.on(EventTypes.CloseConnection, closeConnection)
+    openDefaultKey()
   })
 
   return (
