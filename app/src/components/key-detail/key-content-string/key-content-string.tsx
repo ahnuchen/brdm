@@ -13,7 +13,6 @@ export function KeyContentStringInner(
   ref: Ref<ForwardRefProps>
 ): JSX.Element {
   const [content, setContent] = useState(Buffer.from(''))
-  const [oldContent, setOldContent] = useState(Buffer.from(''))
   const formatViewerRef = useRef<ForwardRefProps>(null)
 
   const initShow = usePersistFn(() => {
@@ -44,7 +43,7 @@ export function KeyContentStringInner(
 
   return (
     <div>
-      <FormatViewer ref={formatViewerRef} disabled={false} setContent={setOldContent} content={content} />
+      <FormatViewer ref={formatViewerRef} disabled={false} setContent={setContent} content={content} />
       <Button type="primary" onClick={save}>
         {i18n.$t('save')}
       </Button>

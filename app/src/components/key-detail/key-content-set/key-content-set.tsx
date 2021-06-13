@@ -1,5 +1,5 @@
 import React, { forwardRef, Ref, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react'
-import { useMount, usePersistFn } from 'ahooks'
+import { useMount, usePersistFn, useToggle } from 'ahooks'
 import { Button, List, message, Modal, Table, Input } from 'antd'
 import { Readable } from 'stream'
 import { DeleteColumnOutlined, DeleteFilled, DeleteRowOutlined } from '@ant-design/icons'
@@ -7,6 +7,7 @@ import { i18n } from '@/src/i18n/i18n'
 import SplitPane from 'react-split-pane'
 import { FormatViewer } from '@/src/components/format-viewer'
 import utils from '@/src/common/utils'
+import Mousetrap from 'mousetrap'
 
 interface KeyContentSetProps {
   client: IORedisClient
@@ -31,15 +32,14 @@ export function KeyContentSetInner(
   const [currentContent, setCurrentContent] = useState<Buffer>(Buffer.from(''))
   const [selectedContent, setSelectedContent] = useState<Buffer>(Buffer.from(''))
   const formatViewRef = useRef<ForwardRefProps>(null)
+  const formatViewRefAdd = useRef<ForwardRefProps>(null)
+  const [addContent, setAddContent] = useState(Buffer.from(''))
+  const [visible, { toggle: toggleVisible }] = useToggle(false)
 
-  const initShow = usePersistFn((reset = true, showToast = true) => {
-    initTotal(showToast)
-    if (reset) {
-      resetTable()
-      Promise.resolve().then(initScanStream)
-    } else {
-      initScanStream()
-    }
+  const initShow = usePersistFn(() => {
+    initTotal()
+    resetTable()
+    Promise.resolve().then(initScanStream)
   })
 
   const columns = useMemo(
@@ -54,11 +54,12 @@ export function KeyContentSetInner(
           <div className="flex center-v">
             value
             <Input.Search
+              style={{ width: '50%' }}
               onInput={(event) => {
                 setFilterValue(event.currentTarget.value)
               }}
-              onSearch={() => initShow(true, false)}
-              onPressEnter={() => initShow(true, false)}
+              onSearch={initShow}
+              onPressEnter={initShow}
               className="ml-8"
               placeholder={i18n.$t('key_to_search')}
             />
@@ -87,13 +88,9 @@ export function KeyContentSetInner(
     []
   )
 
-  const initTotal = usePersistFn((showToast) => {
+  const initTotal = usePersistFn(() => {
     client.scard(redisKey).then((res) => {
       setTotal(res)
-      if (showToast) {
-        message.destroy()
-        message.info(`Total: ${res} items`, 1)
-      }
     })
   })
 
@@ -130,6 +127,9 @@ export function KeyContentSetInner(
   })
 
   const editLine = usePersistFn(() => {
+    if (selectedContent === currentContent) {
+      return false
+    }
     client.sadd(redisKey, currentContent).then((reply) => {
       if (reply === 1) {
         if (selectedContent) {
@@ -149,12 +149,22 @@ export function KeyContentSetInner(
   })
 
   const deleteLine = usePersistFn((record: SetRow) => {
+    const delConfirmCols = [
+      {
+        title: 'row',
+        dataIndex: 'index',
+        width: 100,
+      },
+      {
+        title: 'value',
+        dataIndex: 'value',
+        ellipsis: true,
+      },
+    ]
     const modal = Modal.confirm({
       type: 'warning',
       title: i18n.$t('confirm_to_delete_row_data'),
-      content: (
-        <Table rowKey="value" pagination={false} columns={[columns[0], columns[1]]} dataSource={[record]} />
-      ),
+      content: <Table rowKey="value" pagination={false} columns={delConfirmCols} dataSource={[record]} />,
       onOk() {
         client.srem(redisKey, record.value).then((reply) => {
           if (reply === 1) {
@@ -169,15 +179,17 @@ export function KeyContentSetInner(
     })
   })
 
-  const addLine = usePersistFn(async () => {
-    // todo test code
-    // const i = '0'
-    //   .repeat(20000)
-    //   .split('')
-    //   .map((item, index) => index)
-    // for (const iElement of i) {
-    //   await client.sadd(redisKey, i)
-    // }
+  const addLine = usePersistFn(() => {
+    client.sadd(redisKey, addContent).then((reply) => {
+      if (reply === 1) {
+        toggleVisible(false)
+        setAddContent(Buffer.from(''))
+        message.success(i18n.$t('add_success'), 1)
+        initShow()
+      } else if (reply === 0) {
+        message.error(i18n.$t('value_exists'), 1.5)
+      }
+    })
   })
 
   const onClickRow = usePersistFn((record: SetRow, event) => {
@@ -199,13 +211,27 @@ export function KeyContentSetInner(
 
   return (
     <div>
-      <Button onClick={addLine}>添加一行</Button>
+      <div>
+        <Button
+          type="primary"
+          onClick={() => {
+            toggleVisible(true)
+            setTimeout(() => {
+              formatViewRefAdd.current && formatViewRefAdd.current.initShow()
+            })
+          }}
+        >
+          {i18n.$t('add_new_line')}
+        </Button>
+        <span className="text-info ml-8">Total: {total} items</span>
+      </div>
       <Table
+        className="mt-6"
         rowClassName={(record: SetRow) =>
           record.value === utils.bufToString(selectedContent) ? 'ant-table-row-selected' : ''
         }
         pagination={{
-          showTotal: () => `Total: ${data.length} items`,
+          showTotal: () => `Total: ${data.length} lines`,
           showQuickJumper: true,
         }}
         onRow={(record) => ({
@@ -226,11 +252,21 @@ export function KeyContentSetInner(
             setContent={setCurrentContent}
             disabled={false}
           />
-          <Button onClick={editLine} disabled={selectedContent === currentContent}>
+          <Button className="mt-4" onClick={editLine} disabled={selectedContent === currentContent}>
             {i18n.$t('save')}
           </Button>
         </>
       )}
+      <Modal
+        visible={visible}
+        onOk={addLine}
+        onCancel={() => {
+          toggleVisible(false)
+        }}
+        destroyOnClose={true}
+      >
+        <FormatViewer ref={formatViewRefAdd} content={addContent} setContent={setAddContent} disabled={false} />
+      </Modal>
     </div>
   )
 }
