@@ -135,9 +135,9 @@ export function KeyContentSetInner(
         if (selectedContent) {
           client.srem(redisKey, selectedContent).then(initShow)
         } else {
-          initShow
+          initShow()
         }
-        message.success(i18n.$t('add_success'), 1)
+        message.success(i18n.$t('modify_success'), 1)
         setSelectedContent(currentContent)
         Promise.resolve().then(() => {
           formatViewRef.current && formatViewRef.current.initShow()
@@ -184,6 +184,8 @@ export function KeyContentSetInner(
       if (reply === 1) {
         toggleVisible(false)
         setAddContent(Buffer.from(''))
+        setCurrentContent(addContent)
+        setSelectedContent(addContent)
         message.success(i18n.$t('add_success'), 1)
         initShow()
       } else if (reply === 0) {
@@ -250,7 +252,12 @@ export function KeyContentSetInner(
         setContent={setCurrentContent}
         disabled={false}
       />
-      <Button className="mt-4" onClick={editLine} disabled={selectedContent.equals(currentContent)}>
+      <Button
+        type="primary"
+        className="mt-4"
+        onClick={editLine}
+        disabled={selectedContent.equals(currentContent)}
+      >
         {i18n.$t('save')}
       </Button>
       <Modal

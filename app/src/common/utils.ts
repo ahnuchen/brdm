@@ -87,8 +87,8 @@ export default {
   },
   isMsgpack(str: any) {
     try {
-      decode(str)
-      return true
+      const decoded = decode(str)
+      return !!decoded && typeof decoded === 'object'
     } catch (e) {}
     return false
   },
