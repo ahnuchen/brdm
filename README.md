@@ -15,11 +15,10 @@ npm run dev
 ## TODO
 - [x] key hdeader
 - [x] string key content
-- [ ] hash key content
-- [ ] list key content
+- [x] hash key content
+- [x] list key content
 - [x] set key content
 - [ ] zset key content
-- [ ] list key content
 - [ ] search key
 - [ ] key list tree contextmenu
 - [ ] multi delete operation

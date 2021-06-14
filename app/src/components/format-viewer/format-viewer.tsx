@@ -18,12 +18,13 @@ interface FormatViewerProps {
   content: Buffer
   setContent: Dispatch<SetStateAction<Buffer>>
   disabled: boolean
+  prefix?: React.ReactNode
 }
 
 type ViewOption = 'Text' | 'Hex' | 'Json' | 'Binary' | 'Msgpack' | 'Unserialize'
 
 function FormatViewerInner(
-  { content, setContent, disabled }: FormatViewerProps,
+  { content, setContent, disabled, prefix }: FormatViewerProps,
   ref: Ref<ForwardRefProps>
 ): JSX.Element {
   const viewerTypeMap = {
@@ -83,6 +84,7 @@ function FormatViewerInner(
   return (
     <div>
       <div className="flex center-v">
+        {prefix && prefix}
         <Radio.Group value={selectedView} size="small" onChange={(e) => select(e.target.value)}>
           {viewers.map((view) => (
             <Radio.Button key={view} value={view}>
