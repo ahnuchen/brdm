@@ -18,7 +18,7 @@ npm run dev
 - [x] hash key content
 - [x] list key content
 - [x] set key content
-- [ ] zset key content
+- [x] zset key content
 - [ ] search key
 - [ ] key list tree contextmenu
 - [ ] multi delete operation

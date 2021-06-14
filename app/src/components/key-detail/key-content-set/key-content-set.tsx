@@ -2,7 +2,7 @@ import React, { forwardRef, Ref, useEffect, useImperativeHandle, useMemo, useRef
 import { useMount, usePersistFn, useToggle } from 'ahooks'
 import { Button, List, message, Modal, Table, Input } from 'antd'
 import { Readable } from 'stream'
-import { DeleteColumnOutlined, DeleteFilled, DeleteRowOutlined } from '@ant-design/icons'
+import { DeleteColumnOutlined, DeleteFilled, DeleteRowOutlined, SearchOutlined } from '@ant-design/icons'
 import { i18n } from '@/src/i18n/i18n'
 import SplitPane from 'react-split-pane'
 import { FormatViewer } from '@/src/components/format-viewer'
@@ -48,18 +48,32 @@ export function KeyContentSetInner(
         title: 'row',
         dataIndex: 'index',
         width: 100,
+        sorter: {
+          compare(a: SetRow, b: SetRow) {
+            return a.index - b.index
+          },
+          multiple: 3,
+        },
       },
       {
         title: (
           <div className="flex center-v">
             value
-            <Input.Search
-              style={{ width: '50%' }}
+            <Input
+              style={{ width: '60%' }}
               onInput={(event) => {
                 setFilterValue(event.currentTarget.value)
               }}
-              onSearch={initShow}
+              onClick={(e) => e.stopPropagation()}
               onPressEnter={initShow}
+              suffix={
+                <SearchOutlined
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    initShow()
+                  }}
+                />
+              }
               className="ml-8"
               placeholder={i18n.$t('key_to_search')}
             />
@@ -67,6 +81,12 @@ export function KeyContentSetInner(
         ),
         dataIndex: 'value',
         ellipsis: true,
+        sorter: {
+          compare(a: SetRow, b: SetRow) {
+            return a.value.localeCompare(b.value)
+          },
+          multiple: 2,
+        },
       },
       {
         title: 'Action',

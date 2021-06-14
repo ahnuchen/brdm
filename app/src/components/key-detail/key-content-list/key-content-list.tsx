@@ -16,6 +16,7 @@ interface ListRow {
   key: number
   index: number
   value: any
+  valueDisplay: string
 }
 
 export function KeyContentListInner(
@@ -41,13 +42,22 @@ export function KeyContentListInner(
         title: 'row',
         dataIndex: 'index',
         width: 100,
+        sorter: {
+          compare(a: ListRow, b: ListRow) {
+            return a.index - b.index
+          },
+          multiple: 3,
+        },
       },
       {
         title: 'value',
-        dataIndex: 'value',
+        dataIndex: 'valueDisplay',
         ellipsis: true,
-        render: (value: ListRow['value']) => {
-          return utils.bufToString(value)
+        sorter: {
+          compare(a: ListRow, b: ListRow) {
+            return a.valueDisplay.localeCompare(b.valueDisplay)
+          },
+          multiple: 2,
         },
       },
       {
@@ -82,7 +92,6 @@ export function KeyContentListInner(
     let listIndex = 0
     const list: ListRow[] = []
     setLoading(true)
-    console.log('%c start.current', 'background: black; color: white', start.current)
     function scanList() {
       client
         .lrangeBuffer(redisKey, start.current, start.current + pageSize)
@@ -93,6 +102,7 @@ export function KeyContentListInner(
               index: listIndex,
               key: listIndex,
               value: re,
+              valueDisplay: utils.bufToString(re),
             })
           }
 
@@ -204,13 +214,6 @@ export function KeyContentListInner(
                   if (reply === 1) {
                     message.success(i18n.$t('delete_success'), 1)
                   }
-                  console.log(
-                    '%c setnext',
-                    'background: pink; color: #000',
-                    currentIndex,
-                    record,
-                    data[currentIndex - 1]
-                  )
                   if (record.index - 1 < currentIndex) {
                     setCurrentIndex((i) => i - 1)
                   }

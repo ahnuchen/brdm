@@ -31,6 +31,12 @@ const config: Configuration = {
     icon: ICON_ICO,
     target: ['nsis', 'msi'],
   },
+  nsis: {
+    allowToChangeInstallationDirectory: true,
+    oneClick: false,
+    menuCategory: true,
+    allowElevation: false,
+  },
   mac: {
     icon: ICON_ICNS,
   },

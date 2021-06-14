@@ -3,7 +3,7 @@ import { useMount, usePersistFn, useToggle } from 'ahooks'
 import { Readable } from 'stream'
 import { Button, Form, Input, message, Modal, Space, Table } from 'antd'
 import { i18n } from '@/src/i18n/i18n'
-import { DeleteFilled } from '@ant-design/icons'
+import { DeleteFilled, SearchOutlined } from '@ant-design/icons'
 import utils from '@/src/common/utils'
 import { FormatViewer } from '@/src/components/format-viewer'
 interface KeyContentHashProps {
@@ -13,7 +13,7 @@ interface KeyContentHashProps {
 
 interface HashRow {
   index: number
-  key: any
+  field: any
   value: any
 }
 
@@ -51,29 +51,55 @@ function KeyContentHashInner(
         title: 'row',
         dataIndex: 'index',
         width: 100,
+        sorter: {
+          compare(a: HashRow, b: HashRow) {
+            return a.index - b.index
+          },
+          multiple: 3,
+        },
       },
       {
         title: (
           <div className="flex center-v">
             Key
-            <Input.Search
-              style={{ width: '50%' }}
+            <Input
+              style={{ width: '60%' }}
               onInput={(event) => {
                 setFilterValue(event.currentTarget.value)
               }}
-              onSearch={initShow}
+              onClick={(e) => e.stopPropagation()}
+              suffix={
+                <SearchOutlined
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    initShow()
+                  }}
+                />
+              }
               onPressEnter={initShow}
               className="ml-8"
               placeholder={i18n.$t('key_to_search')}
             />
           </div>
         ),
-        dataIndex: 'key',
+        dataIndex: 'field',
         ellipsis: true,
+        sorter: {
+          compare(a: HashRow, b: HashRow) {
+            return a.field.localeCompare(b.field)
+          },
+          multiple: 2,
+        },
       },
       {
         title: 'Value',
         dataIndex: 'value',
+        sorter: {
+          compare(a: HashRow, b: HashRow) {
+            return a.value.localeCompare(b.value)
+          },
+          multiple: 1,
+        },
       },
       {
         title: 'Action',
@@ -109,17 +135,17 @@ function KeyContentHashInner(
   const initScanStream = usePersistFn(() => {
     const match = getScanMatch()
     let hashRows: HashRow[] = []
-    const index = 1
+    let index = 1
     scanStream.current = client
       .hscanStream(redisKey, { match, count: pageSize })
       .on('data', (reply) => {
-        console.log('%c reply', 'background: pink; color: #000', reply)
         for (let i = 0; i < reply.length; i += 2) {
           hashRows.push({
             index,
-            key: reply[i],
+            field: reply[i],
             value: reply[i + 1],
           })
+          index++
         }
         setData((preData) => {
           return preData.concat(hashRows)
@@ -168,7 +194,7 @@ function KeyContentHashInner(
       },
       {
         title: 'Key',
-        dataIndex: 'key',
+        dataIndex: 'field',
         ellipsis: true,
       },
       {
@@ -182,7 +208,7 @@ function KeyContentHashInner(
       title: i18n.$t('confirm_to_delete_row_data'),
       content: <Table rowKey="value" pagination={false} columns={delConfirmCols} dataSource={[record]} />,
       onOk() {
-        client.hdel(redisKey, record.key).then((reply) => {
+        client.hdel(redisKey, record.field).then((reply) => {
           message.success(i18n.$t('delete_success'), 1)
           initShow()
         })
@@ -195,17 +221,21 @@ function KeyContentHashInner(
 
   const addLine = usePersistFn(() => {
     client
-      .hset(redisKey, addKey, addContent)
+      .hsetnx(redisKey, utils.bufToString(addKey), addContent)
       .then((reply) => {
-        toggleVisible(false)
-        setAddContent(Buffer.from(''))
-        setAddKey(Buffer.from(''))
-        setCurrentContent(addContent)
-        setSelectedContent(addContent)
-        setCurrentKey(addKey)
-        setSelectedKey(addKey)
-        message.success(i18n.$t('add_success'), 1)
-        initShow()
+        if (reply === 1) {
+          toggleVisible(false)
+          setAddContent(Buffer.from(''))
+          setAddKey(Buffer.from(''))
+          setCurrentContent(addContent)
+          setSelectedContent(addContent)
+          setCurrentKey(addKey)
+          setSelectedKey(addKey)
+          message.success(i18n.$t('add_success'), 1)
+          initShow()
+        } else if (reply === 0) {
+          message.error(i18n.$t('value_exists'))
+        }
       })
       .catch((e) => {
         message.error(i18n.$t('add_failed'), 1.5)
@@ -216,8 +246,8 @@ function KeyContentHashInner(
     console.log('%c record', 'background: pink; color: #000', record)
     setCurrentContent(Buffer.from(record.value))
     setSelectedContent(Buffer.from(record.value))
-    setCurrentKey(Buffer.from(record.key))
-    setSelectedKey(Buffer.from(record.key))
+    setCurrentKey(Buffer.from(record.field))
+    setSelectedKey(Buffer.from(record.field))
     Promise.resolve().then(() => {
       formatViewRef.current && formatViewRef.current.initShow()
     })
@@ -263,7 +293,7 @@ function KeyContentHashInner(
         bordered
         size="small"
         loading={loading}
-        rowKey="key"
+        rowKey="field"
         columns={columns}
         dataSource={data}
       />

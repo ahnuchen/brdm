@@ -194,13 +194,15 @@ export function KeyHeader({ client, redisKey, keyType, refreshContent }: KeyHead
           </Col>
           <Col offset={1}>
             <Button title="copy key" onClick={copyKey}>
+              {i18n.$t('copy')}
               <CopyFilled />
+            </Button>
+            <Button onClick={refreshKey} className="ml-8" title={i18n.$t('refresh_connection')}>
+              {i18n.$t('refresh_connection')}
+              <SyncOutlined className="text-success" />
             </Button>
             <Button onClick={deleteKey} className="ml-8" title="delete">
               <DeleteFilled className="text-error" />
-            </Button>
-            <Button onClick={refreshKey} className="ml-8" title={i18n.$t('refresh_connection')}>
-              <SyncOutlined className="text-success" />
             </Button>
           </Col>
         </Row>
