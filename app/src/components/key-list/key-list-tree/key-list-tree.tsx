@@ -46,7 +46,7 @@ export function KeyListTree({ keyList, client, config }: KeyListTreeProps): JSX.
           allKeys.push(node.key)
         }
         getAllEmptyFolders(node.children[0])
-      } else {
+      } else if (!expandedKeys.includes(node.key)) {
         allKeys.push(node.key)
       }
     }
