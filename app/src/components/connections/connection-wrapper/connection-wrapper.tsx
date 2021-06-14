@@ -142,7 +142,7 @@ export function ConnectionWrapper({ config }: ConnectionWrapperProps): JSX.Eleme
 
   useMount(() => {
     $bus.on(EventTypes.CloseConnection, closeConnection)
-    openDefaultKey()
+    // openDefaultKey()
   })
 
   return (

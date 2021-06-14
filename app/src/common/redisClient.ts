@@ -87,16 +87,20 @@ class RedisClient {
       dstHost: host,
       dstPort: port,
       localHost: '127.0.0.1',
-      localPort: -1, // set null to use available port in local machine
+      //@ts-ignore
+      localPort: null, // set null to use available port in local machine
       privateKey: this.getFileContent(sshOptions.privatekey, sshOptions.privatekeybookmark),
       passphrase: sshOptions.passphrase ? sshOptions.passphrase : undefined,
       keepaliveInterval: 10000,
     }
 
+    console.log('%c sshConfig', 'background: pink; color: #000', sshConfig)
+
     const sshConfigRaw = JSON.parse(JSON.stringify(sshConfig))
 
     const sshPromise = new Promise((resolve, reject) => {
       const server = tunnelssh(sshConfig, (error, server) => {
+        console.log('%c tunnelssh', 'background: pink; color: #000', { error }, { server })
         // ssh error only on this, not the 'error' argument...
         server.on('error', (error) => {
           message.error(error.message + ' SSH config right?')
@@ -110,6 +114,7 @@ class RedisClient {
 
         const listenAddress = server.address() as AddressInfo
 
+        console.log('%c listenAddress', 'background: black; color: white', listenAddress)
         // ssh standalone IORedis
         if (!config.cluster) {
           // @ts-ignore

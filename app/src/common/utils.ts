@@ -170,7 +170,7 @@ export default {
         const tillNowKeyName = previousKey + key + separator
         node.children = this.formatTreeData(value, tillNowKeyName, separator)
         // keep folder node in top of the tree(not include the outest list)
-        this.sortNodes(node.children)
+        // this.sortNodes(node.children)
         node.keyCount = node.children.reduce((a: AnyObj, b: AnyObj) => a + (b.keyCount || 0), 0)
         node.fullName = tillNowKeyName
         node.key = tillNowKeyName + '`_folder`'
