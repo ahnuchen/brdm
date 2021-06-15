@@ -72,6 +72,7 @@ const cn = {
     retry_too_many_times: '尝试重连次数过多，请检查Server状态',
     key_to_search: '输入关键字搜索',
     begin_update: '更新',
+    ignore_this_version: '忽略该版本',
     check_update: '检查更新',
     update_checking: '检查更新中, 请稍后...',
     update_available: '发现新版本',
@@ -79,20 +80,16 @@ const cn = {
     update_error: '更新失败',
     update_downloading: '下载中...',
     update_download_progress: '下载进度',
-    update_downloaded:
-      '更新下载完成，重启客户端生效.\
-    [Tips]: 如果您使用的是Windows，关闭软件后，请等待桌面图标刷新到正常状态(约10秒)，然后再重新打开即可',
-    mac_not_support_auto_update:
-      'Mac暂时不支持自动更新，请手动<a href="https://github.com/qishibo/AnotherRedisDesktopManager/releases">下载</a>后重新安装，\
+    update_downloaded: "更新下载完成，重启客户端生效.\
+    [Tips]: 如果您使用的是Windows，关闭软件后，请等待桌面图标刷新到正常状态(约10秒)，然后再重新打开即可",
+    mac_not_support_auto_update: 'Mac暂时不支持自动更新，请手动<a href="https://github.com/qishibo/AnotherRedisDesktopManager/releases">下载</a>后重新安装，\
     或者执行brew reinstall --cask another-redis-desktop-manager \
     <br><br>🧡如果您觉得好用，可以通过<a href="https://apps.apple.com/app/id1516451072">AppStore</a>赞助，并由AppStore帮您自动更新',
     font_family: '字体选择',
     font_faq_title: '字体设置说明',
-    font_faq:
-      '1. 可以设置多个字体<br>2. 字体选择是有序的，建议首先选择英文字体，然后再选择中文字体<br>\
+    font_faq: '1. 可以设置多个字体<br>2. 字体选择是有序的，建议首先选择英文字体，然后再选择中文字体<br>\
     3. 某些异常情况无法加载系统字体列表时，可以手动输入已安装字体名称',
-    private_key_faq:
-      '目前支持RSA格式私钥，即以<pre>-----BEGIN RSA PRIVATE KEY-----</pre>开头，\
+    private_key_faq: '目前支持RSA格式私钥，即以<pre>-----BEGIN RSA PRIVATE KEY-----</pre>开头，\
     以<pre>-----BEGIN OPENSSH PRIVATE KEY-----</pre>开头的，需要执行\
     <pre>ssh-keygen -p -m pem -f ~/.ssh/id_rsa</pre>进行格式转换后再使用，该操作不会影响以前的私钥登陆',
     dark_mode: '深色模式',
@@ -103,6 +100,7 @@ const cn = {
     redis_status: 'Redis信息',
     confirm_flush_db: '确认删除db{db}中的所有键值么？',
     flushdb: '删除所有键',
+    flushdb_prompt: '请输入 "{txt}"',
     info_disabled: 'Info命令执行异常（可能已被禁用），无法显示Redis信息',
     page_zoom: '页面缩放',
     scan_disabled: 'Scan命令执行异常（可能已被禁用），无法显示Key列表',
@@ -110,6 +108,7 @@ const cn = {
     delete_folder: '扫描并删除整个文件夹',
     multiple_select: '多项选择',
     copy: '复制',
+    copy_success: '复制成功',
     keys_to_be_deleted: '即将删除的键值',
     delete_all: '全部删除',
     clear_cache: '清除缓存',
@@ -120,9 +119,10 @@ const cn = {
     clear_cache_tip: '当客户端出现问题时，该操作会删除所有连接和配置，用于恢复客户端',
     detail: '详情',
     separator_tip: '树状显示的分隔符，设置为空可以禁用树状图，直接以列表展示',
-    confirm_modify_unvisible_content:
-      '内容中包含不可见字符，你可以在Hex视图中进行安全编辑。如果继续在Text视图中编辑可能会导致编码错误，确定继续么？',
+    confirm_modify_unvisible_content: '内容中包含不可见字符，你可以在Hex视图中进行安全编辑。如果继续在Text视图中编辑可能会导致编码错误，确定继续么？',
+    keys_per_loading: '加载数量',
+    keys_per_loading_tip: '每次加载的key数量, 设置过大可能会影响性能',
   },
-}
+};
 
-export default cn
+export default cn;

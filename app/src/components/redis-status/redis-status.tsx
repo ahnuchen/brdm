@@ -1,5 +1,5 @@
 import React, { useRef, useState } from 'react'
-import { BackTop, Card, Col, message, Row, Switch, Table, Tag, Tooltip } from 'antd'
+import { Card, Col, message, Row, Switch, Table, Tag, Tooltip } from 'antd'
 import { i18n } from '@/src/i18n/i18n'
 import { DatabaseOutlined, InfoCircleFilled, SyncOutlined, WifiOutlined } from '@ant-design/icons'
 import { useMount, usePersistFn } from 'ahooks'
@@ -252,7 +252,6 @@ export function RedisStatus({ client }: RedisStatusProps): JSX.Element {
         dataSource={allRedisInfo}
         bordered
       />
-      <BackTop target={() => document.querySelector('#rightTabs') as HTMLElement} />
     </>
   )
 }

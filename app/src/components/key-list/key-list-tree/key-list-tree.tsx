@@ -38,10 +38,26 @@ export function KeyListTree({ keyList, client, config }: KeyListTreeProps): JSX.
       setSelectedKeys(selectedKeysValue)
     }
     const node: EventDataNode = info.node
+    // @ts-ignore
+    const allKeys = []
+    const getAllEmptyFolders = (node: any) => {
+      if (node.children && node.children.length === 1) {
+        if (!expandedKeys.includes(node.key)) {
+          allKeys.push(node.key)
+        }
+        getAllEmptyFolders(node.children[0])
+      } else if (!expandedKeys.includes(node.key)) {
+        allKeys.push(node.key)
+      }
+    }
     if (node.children && node.children?.length > 0) {
       if (!node.expanded) {
-        setExpandedKeys((keys) => keys.concat(node.key))
+        // open all empty folder
+        getAllEmptyFolders(node)
+        // @ts-ignore
+        setExpandedKeys((keys) => keys.concat(allKeys))
       } else {
+        // close
         setExpandedKeys((keys) => keys.filter((k) => k !== node.key))
       }
     } else if (selectedKeysValue?.length !== 0) {

@@ -22,10 +22,19 @@ app.on('second-instance', () => {
 
 app.on('ready', () => {
   tray = creatAppTray()
-  $tools.createWindow('Home')
-  globalShortcut.unregister('CommandOrControl+W')
-  //TODO 暂时先不要tray隐藏,开发时热更新导致这个tray会越来越多
-  // tray.destroy()
+  $tools.createWindow('Home').then((win) => {
+    win.on('focus', function () {
+      // MouseTrap cannot cover default system keyboard shortcut CommandOrControl+W,
+      // so use electron globalShortcut
+      globalShortcut.register('CommandOrControl+W', function () {
+        return win.webContents.send('closeTab')
+      })
+    })
+
+    win.on('blur', function () {
+      globalShortcut.unregisterAll()
+    })
+  })
 })
 
 app.on('activate', () => {
@@ -39,6 +48,7 @@ app.on('window-all-closed', () => {
   //   app.quit()
   // }
   tray.destroy()
+  globalShortcut.unregisterAll()
 })
 
 app.on('before-quit', () => {

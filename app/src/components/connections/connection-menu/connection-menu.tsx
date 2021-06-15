@@ -18,9 +18,10 @@ import { $bus, EventTypes } from '@/src/common/emitter'
 interface ConnectionMenuProps {
   config: ConnectionConfig
   client: IORedisClient
+  onCollapseChange(keys: string[]): void
 }
 
-export function ConnectionMenu({ config, client }: ConnectionMenuProps): JSX.Element {
+export function ConnectionMenu({ config, client, onCollapseChange }: ConnectionMenuProps): JSX.Element {
   const [color, setColor] = useState('#1aad19')
 
   const deleteConnection = usePersistFn(() => {
@@ -28,9 +29,18 @@ export function ConnectionMenu({ config, client }: ConnectionMenuProps): JSX.Ele
     $bus.emit(EventTypes.RefreshConnection)
   })
 
+  const openStatus = usePersistFn(() => {
+    const { connectionName } = config
+    if (client) {
+      $bus.emit(EventTypes.OpenStatus, client, connectionName)
+    } else {
+      onCollapseChange([connectionName])
+    }
+  })
+
   return (
     <div onClick={(event) => event.stopPropagation()} style={{ width: '74px' }} className="flex between">
-      <HomeOutlined onClick={() => {}} />
+      <HomeOutlined onClick={openStatus} />
       <CodeOutlined />
       <ReloadOutlined />
       <Dropdown

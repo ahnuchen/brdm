@@ -34,14 +34,16 @@ export function NewConnectionModal({
   onConfigFinished,
 }: NewConnectionModalProps): JSX.Element {
   const [redisConfigForm] = Form.useForm()
+  const [sshConfigForm] = Form.useForm()
   const [SSHTunnel, setSSHTunnel] = useState(false)
   const [SSLTunnel, setSSLTunnel] = useState(false)
   const [clusterMode, setClusterMode] = useState(false)
 
   const onConfigSubmit = usePersistFn(() => {
-    const config = redisConfigForm.getFieldsValue()
+    const config: ConnectionConfig = redisConfigForm.getFieldsValue()
     !config.host && (config.host = redisConnectConfig.host)
     !config.port && (config.port = redisConnectConfig.port)
+    config.sshOptions = sshConfigForm.getFieldsValue()
     const oldKey = $tools.storage.getConnectionKey(connectionConfig)
     console.log({ config, oldKey })
     $tools.storage.editConnectionByKey(config, oldKey)
@@ -125,7 +127,7 @@ export function NewConnectionModal({
           <>
             <Divider type="horizontal">SSH Tunnel</Divider>
 
-            <Form labelCol={{ span: 4 }}>
+            <Form labelCol={{ span: 4 }} form={sshConfigForm}>
               <FormItem label="Host" name="host">
                 <Input />
               </FormItem>

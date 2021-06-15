@@ -49,18 +49,12 @@ export function KeyHeader({ client, redisKey, keyType, refreshContent }: KeyHead
         const redisKeyBuffer = Buffer.from(redisKey)
         client.del(redisKeyBuffer).then((reply) => {
           if (reply === 1) {
-            message.success({
-              content: i18n.$t('delete_success'),
-              duration: 1,
-            })
+            message.success(i18n.$t('delete_success'), 1)
 
             $bus.emit(EventTypes.RemovePreTab)
             refreshKeyList(redisKeyBuffer)
           } else {
-            message.error({
-              content: `${redisKey} ${i18n.$t('delete_failed')}`,
-              duration: 1,
-            })
+            message.error(`${redisKey} ${i18n.$t('delete_failed')}`, 1)
           }
         })
       },
@@ -143,7 +137,8 @@ export function KeyHeader({ client, redisKey, keyType, refreshContent }: KeyHead
     message.success({
       content: (
         <div>
-          <Tag>{redisKey}</Tag> copied to clipboard`
+          <Tag>{redisKey}</Tag>
+          {i18n.$t('copy_success')}
         </div>
       ),
       duration: 1,
@@ -199,13 +194,15 @@ export function KeyHeader({ client, redisKey, keyType, refreshContent }: KeyHead
           </Col>
           <Col offset={1}>
             <Button title="copy key" onClick={copyKey}>
+              {i18n.$t('copy')}
               <CopyFilled />
+            </Button>
+            <Button onClick={refreshKey} className="ml-8" title={i18n.$t('refresh_connection')}>
+              {i18n.$t('refresh_connection')}
+              <SyncOutlined className="text-success" />
             </Button>
             <Button onClick={deleteKey} className="ml-8" title="delete">
               <DeleteFilled className="text-error" />
-            </Button>
-            <Button onClick={refreshKey} className="ml-8" title={i18n.$t('refresh_connection')}>
-              <SyncOutlined className="text-success" />
             </Button>
           </Col>
         </Row>

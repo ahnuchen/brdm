@@ -11,16 +11,7 @@ import { $bus, EventTypes } from '@/src/common/emitter'
 interface ConnectionWrapperProps {
   config: ConnectionConfig
 }
-function randomString(len = 32) {
-  const $chars =
-    'ABCDEFGHJKMNPQRSTWXYZabcdefhijkmnprstwxyz2345678' /****默认去掉了容易混淆的字符oOLl,9gq,Vv,Uu,I1****/
-  const maxPos = $chars.length
-  let pwd = ''
-  for (let i = 0; i < len; i++) {
-    pwd += $chars.charAt(Math.floor(Math.random() * maxPos))
-  }
-  return pwd
-}
+
 export function ConnectionWrapper({ config }: ConnectionWrapperProps): JSX.Element {
   const operateItemRef = useRef<any>()
   const keyListRef = useRef<any>()
@@ -114,10 +105,7 @@ export function ConnectionWrapper({ config }: ConnectionWrapperProps): JSX.Eleme
       .then((client) => {
         setClient(client)
         client.on('error', (error) => {
-          message.error({
-            content: 'Redis Client On Error: ' + error + ' Config right?',
-            duration: 3,
-          })
+          message.error('Redis Client On Error: ' + error + ' Config right?', 3)
           closeConnection(config.connectionName)
         })
       })
@@ -131,26 +119,30 @@ export function ConnectionWrapper({ config }: ConnectionWrapperProps): JSX.Eleme
   const onCollapseChange = usePersistFn((keys) => {
     setActiveKeys(keys)
 
-    // open collapse
-    if (keys.length > 0) {
+    // open collapse, judge of client to prevent scan keys after first open,
+    // user can use refresh button to rescan
+    if (keys.length > 0 && !client) {
       openConnection({
         connectionName: config.connectionName,
       })
     }
   })
 
-  useMount(() => {
-    $bus.on(EventTypes.CloseConnection, closeConnection)
+  const openDefaultKey = () => {
+    //TODO 默认打开一个key/status， 方便开发调试，开发完应该删掉此处
 
-    // 默认打开一个key/status， 方便开发调试，开发完应该删掉此处
-
-    /*    setActiveKeys(['common'])
+    setActiveKeys(['common'])
     openConnection({
       connectionName: 'common',
       callback(client: IORedisClient) {
-        $bus.emit(EventTypes.ClickedKey, client, 'a:1string', false)
+        $bus.emit(EventTypes.ClickedKey, client, 'a:1hash', false)
       },
-    })*/
+    })
+  }
+
+  useMount(() => {
+    $bus.on(EventTypes.CloseConnection, closeConnection)
+    // openDefaultKey()
   })
 
   return (
@@ -162,7 +154,13 @@ export function ConnectionWrapper({ config }: ConnectionWrapperProps): JSX.Eleme
       onChange={onCollapseChange}
     >
       <Collapse.Panel
-        extra={<ConnectionMenu config={config} client={client as IORedisClient} />}
+        extra={
+          <ConnectionMenu
+            onCollapseChange={onCollapseChange}
+            config={config}
+            client={client as IORedisClient}
+          />
+        }
         key={config.connectionName}
         header={config.connectionName}
       >

@@ -72,6 +72,7 @@ const en = {
     retry_too_many_times: 'Too Many Attempts To Reconnect. Please Check The Server Status',
     key_to_search: 'Keyword Search',
     begin_update: 'Update',
+    ignore_this_version: 'Ignore this version',
     check_update: 'Check Update',
     update_checking: 'Checking For Updates, Wait A Moment...',
     update_available: 'New Version Found',
@@ -79,21 +80,17 @@ const en = {
     update_error: 'Update Failed',
     update_downloading: 'Downloading...',
     update_download_progress: 'Download Progress',
-    update_downloaded:
-      'Update Download Completed, Restart Your App Please.\
+    update_downloaded: 'Update Download Completed, Restart Your App Please.\
     [Tips]: If you are using Windows, after closing the app, waiting the desktop icon to refresh to a normal state(about 10 seconds), and then you can reopen it',
-    mac_not_support_auto_update:
-      'Mac Does Not Support Automatic Update, Please Manually <a href="https://github.com/qishibo/AnotherRedisDesktopManager/releases">Download</a> And Reinstall,\
+    mac_not_support_auto_update: 'Mac Does Not Support Automatic Update, Please Manually <a href="https://github.com/qishibo/AnotherRedisDesktopManager/releases">Download</a> And Reinstall,\
     Or Run "brew reinstall --cask another-redis-desktop-manager"\
     <br><br>🧡if it\'s useful to you ,you can sponsor through <a href="https://apps.apple.com/app/id1516451072">AppStore</a>, and AppStore will automatically update it for you.',
     font_family: 'Font Family',
     font_faq_title: 'Font Setting Instructions',
-    font_faq:
-      '1. Multiple fonts can be set<br>\
+    font_faq: '1. Multiple fonts can be set<br>\
     2. Font selection is orderly. It is suggested to choose English font first and then font in your language<br>\
     3. When the system font list cannot be loaded in some exceptional cases, you can enter the installed font name manually.',
-    private_key_faq:
-      'RSA format private key is supported, which starts with <pre>-----BEGIN RSA PRIVATE KEY-----</pre>\
+    private_key_faq: 'RSA format private key is supported, which starts with <pre>-----BEGIN RSA PRIVATE KEY-----</pre>\
     as to starts with<pre>-----BEGIN OPENSSH PRIVATE KEY-----</pre>you need to convert format via <pre>ssh-keygen -p -m pem -f ~/.ssh/id_rsa</pre>This operation will not affect the previous private key login',
     dark_mode: 'Dark Mode',
     load_more_keys: 'load more',
@@ -103,6 +100,7 @@ const en = {
     redis_status: 'Redis Info',
     confirm_flush_db: 'Confirm to delete all the keys in db{db} ?',
     flushdb: 'Flush DB',
+    flushdb_prompt: 'Input "{txt}"',
     info_disabled: 'Info command execution exception(may have been disabled), redis info cannot be displayed',
     page_zoom: 'Page Zoom',
     scan_disabled: 'Scan command execution exception(may have been disabled), key list cannot be displayed',
@@ -110,6 +108,7 @@ const en = {
     delete_folder: 'Scan And Delete Whole Folder',
     multiple_select: 'Multiple Select',
     copy: 'Copy',
+    copy_success: 'Copy success',
     keys_to_be_deleted: 'Keys To Be Deleted',
     delete_all: 'Delete All',
     clear_cache: 'Clear Cache',
@@ -117,13 +116,13 @@ const en = {
     key_no_permission: 'File read permission has expired, please reselect the key file manually',
     toggle_check_all: 'Select all | Unselect all',
     select_lang: 'Select Language',
-    clear_cache_tip:
-      'When there is a problem with the client, this operation will delete all the connections and configurations to recover the client',
+    clear_cache_tip: 'When there is a problem with the client, this operation will delete all the connections and configurations to recover the client',
     detail: 'Detail',
     separator_tip: 'The separator of the tree view, set to empty to disable tree and display keys as list',
-    confirm_modify_unvisible_content:
-      'The content contains invisible characters, you can edit safely in the "Hex View". If continuing to edit in the "Text View" may cause coding errors, sure to continue?',
+    confirm_modify_unvisible_content: 'The content contains invisible characters, you can edit safely in the "Hex View". If continuing to edit in the "Text View" may cause coding errors, sure to continue?',
+    keys_per_loading: 'Load Number',
+    keys_per_loading_tip: 'The number of keys loaded each time. Setting too large may affect performance',
   },
-}
+};
 
-export default en
+export default en;
