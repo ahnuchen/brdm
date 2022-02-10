@@ -10,8 +10,6 @@ interface AppProps {
   createConfig: CreateConfig
 }
 
-console.log('%c tools', 'background: pink; color: #000', $tools)
-
 export default class App extends React.Component<AppProps> {
   render(): JSX.Element {
     return (
