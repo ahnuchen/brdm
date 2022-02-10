@@ -1,4 +1,4 @@
-import React, { forwardRef, Ref, useImperativeHandle, useRef, useState } from 'react'
+import React, { Dispatch, forwardRef, Ref, SetStateAction, useImperativeHandle, useRef, useState } from 'react'
 import { useMount, usePersistFn } from 'ahooks'
 import { Readable } from 'stream'
 import { i18n } from '@/src/i18n/i18n'
@@ -9,10 +9,15 @@ import { $bus, EventTypes } from '@/src/common/emitter'
 interface KeyListProps {
   config: ConnectionConfig
   client: IORedisClient
-  setOpening(opening: boolean): void
+  setOpening: Dispatch<SetStateAction<boolean>>
+  match: string
+  exactSearch: boolean
 }
 
-function KeyListInner({ config, client, setOpening }: KeyListProps, ref: Ref<any>): JSX.Element {
+function KeyListInner(
+  { config, client, setOpening, match, exactSearch }: KeyListProps,
+  ref: Ref<any>
+): JSX.Element {
   const scanStreams = useRef<Readable[]>([])
   const [keyList, setKeyList] = useState<any[]>(() => [])
   const tempKeyList = useRef([])
@@ -32,11 +37,14 @@ function KeyListInner({ config, client, setOpening }: KeyListProps, ref: Ref<any
     resetKeyListPrevious && resetKeyList()
 
     // extract search
+    if (exactSearch) {
+      return refreshKeyListExact()
+    }
 
     // search loading
+    setOpening(true)
 
     // init scanStream
-    setOpening(true)
     if (!scanStreams.current.length) {
       initScanStreamsAndScan()
     }
@@ -160,17 +168,28 @@ function KeyListInner({ config, client, setOpening }: KeyListProps, ref: Ref<any
     setScanMoreDisabled(() => false)
   })
 
+  const refreshKeyListExact = usePersistFn(() => {
+    const matchMode = getMatchMode(false)
+
+    client.exists(matchMode).then((reply) => {
+      setKeyList(() => {
+        if (reply === 1) {
+          return [Buffer.from(matchMode)]
+        } else {
+          return []
+        }
+      })
+    })
+
+    setScanMoreDisabled(() => true)
+  })
+
   const getMatchMode = usePersistFn((fillStar = true) => {
-    // let match = this.$parent.$parent.$parent.$refs.operateItem.searchMatch;
-    //
-    // match = match || '*';
-    //
-    // if (fillStar && !match.match(/\*/)) {
-    //   match = (`*${match}*`);
-    // }
-    //
-    // return match;
-    return '*'
+    let matchMode = match || '*'
+    if (fillStar && !matchMode.match(/\*/)) {
+      matchMode = `*${matchMode}*`
+    }
+    return matchMode
   })
 
   const removeKeyFromKeyList = usePersistFn((key) => {
