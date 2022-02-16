@@ -180,6 +180,7 @@ export default {
         node.name = key.replace(/`k`$/, '')
         node.key = node.name
         node.title = node.name
+        node.isLeaf = true
         node.nameBuffer = tree[key].nameBuffer.toJSON()
       }
 

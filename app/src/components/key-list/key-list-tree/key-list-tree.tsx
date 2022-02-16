@@ -5,7 +5,8 @@ import { DataNode, EventDataNode } from 'rc-tree/lib/interface'
 import './key-list-tree.less'
 import { usePersistFn } from 'ahooks'
 import { $bus, EventTypes } from '@/src/common/emitter'
-import { i18n } from '@/src/i18n/i18n'
+import { RightClickMenu } from '@/src/components/key-list/right-click-menu'
+import { FolderFilled } from '@ant-design/icons'
 
 interface KeyListTreeProps {
   keyList: any[]
@@ -24,6 +25,7 @@ export function KeyListTree({ keyList, client, config }: KeyListTreeProps): JSX.
   const [cmLeft, setCmLeft] = useState(0)
   const [cmTop, setCmTop] = useState(0)
   const [contextNode, setContextNode] = useState<DataNode>()
+  const [checkable, setCheckable] = useState(false)
 
   const onExpand = usePersistFn((expandedKeysValue: React.Key[]) => {
     setExpandedKeys(expandedKeysValue)
@@ -83,65 +85,11 @@ export function KeyListTree({ keyList, client, config }: KeyListTreeProps): JSX.
     setTreeData(() => treeData as DataNode[])
   }, [keyList])
 
-  useEffect(() => {
-    if (contextMenuVisible) {
-      document.addEventListener('click', () => {
-        setContextMenuVisible(false)
-      })
-    } else {
-      document.removeEventListener('click', () => {
-        setContextMenuVisible(false)
-      })
-    }
-  }, [contextMenuVisible])
-
-  const contextMenus = [
-    {
-      name: i18n.$t('copy'),
-      onClick() {
-        console.log('copy')
-      },
-    },
-    {
-      name: 'delete',
-      onClick() {
-        console.log('delete')
-      },
-    },
-    {
-      name: i18n.$t('multiple_select'),
-      onClick() {
-        console.log('multiple_select')
-      },
-    },
-    {
-      name: i18n.$t('open_new_tab'),
-      onClick() {
-        console.log('open_new_tab')
-      },
-    },
-  ]
-
-  const contextMenusFold = [
-    {
-      name: i18n.$t('multiple_select'),
-      onClick() {
-        console.log('multiple_select')
-      },
-    },
-    {
-      name: i18n.$t('delete_all'),
-      onClick() {
-        console.log('delete_all')
-      },
-    },
-  ]
-
   return (
-    <ul>
-      <Tree
+    <ul className="tree-wrap">
+      <Tree.DirectoryTree
         onRightClick={onRightClick}
-        checkable={false}
+        checkable={checkable}
         virtual={true}
         onExpand={onExpand}
         expandedKeys={expandedKeys}
@@ -152,15 +100,14 @@ export function KeyListTree({ keyList, client, config }: KeyListTreeProps): JSX.
         selectedKeys={selectedKeys}
         treeData={treeData}
       />
-      {contextMenuVisible && (
-        <div style={{ left: cmLeft, top: cmTop }} className="context-menu-wrapper">
-          {(contextNode?.children ? contextMenusFold : contextMenus).map((item) => (
-            <div key={item.name} className="context-menu-item" onClick={item.onClick}>
-              {item.name}
-            </div>
-          ))}
-        </div>
-      )}
+      <RightClickMenu
+        setCheckable={setCheckable}
+        contextNode={contextNode}
+        contextMenuVisible={contextMenuVisible}
+        setContextMenuVisible={setContextMenuVisible}
+        cmLeft={cmLeft}
+        cmTop={cmTop}
+      />
     </ul>
   )
 }

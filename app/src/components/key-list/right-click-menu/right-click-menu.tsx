@@ -1,20 +1,91 @@
-import React from 'react'
-import { ContextMenu, MenuItem, ContextMenuTrigger } from 'react-contextmenu'
+import React, { Dispatch, SetStateAction, useEffect } from 'react'
+import { i18n } from '@/src/i18n/i18n'
+import { DataNode } from 'rc-tree/lib/interface'
+import './style.less'
 
 interface RightClickMenuProps {
-  children: React.ReactNode
-  id: string
+  contextNode?: DataNode
+  contextMenuVisible: boolean
+  setContextMenuVisible: Dispatch<SetStateAction<boolean>>
+  setCheckable: Dispatch<SetStateAction<boolean>>
+  cmLeft: number
+  cmTop: number
 }
 
-export function RightClickMenu({ children, id }: RightClickMenuProps): JSX.Element {
+export function RightClickMenu({
+  contextMenuVisible,
+  contextNode,
+  cmLeft,
+  cmTop,
+  setCheckable,
+  setContextMenuVisible,
+}: RightClickMenuProps): JSX.Element {
+  useEffect(() => {
+    if (contextMenuVisible) {
+      document.addEventListener('click', () => {
+        setContextMenuVisible(false)
+      })
+    } else {
+      document.removeEventListener('click', () => {
+        setContextMenuVisible(false)
+      })
+    }
+  }, [contextMenuVisible])
+
+  const contextMenus = [
+    {
+      name: i18n.$t('copy'),
+      onClick() {
+        console.log('copy')
+      },
+    },
+    {
+      name: 'delete',
+      onClick() {
+        console.log('delete')
+      },
+    },
+    {
+      name: i18n.$t('multiple_select'),
+      onClick() {
+        setCheckable(true)
+        console.log('multiple_select')
+      },
+    },
+    {
+      name: i18n.$t('open_new_tab'),
+      onClick() {
+        console.log('open_new_tab')
+      },
+    },
+  ]
+
+  const contextMenusFold = [
+    {
+      name: i18n.$t('multiple_select'),
+      onClick() {
+        setCheckable(true)
+        console.log('multiple_select')
+      },
+    },
+    {
+      name: i18n.$t('delete_all'),
+      onClick() {
+        console.log('delete_all')
+      },
+    },
+  ]
   return (
     <>
-      <ContextMenuTrigger id={id}>{children}</ContextMenuTrigger>
-      <ContextMenu id={id}>
-        <MenuItem>多选</MenuItem>
-        <MenuItem>删除</MenuItem>
-        <MenuItem>打开</MenuItem>
-      </ContextMenu>
+      {contextMenuVisible && (
+        <div style={{ left: cmLeft, top: cmTop }} className="context-menu-wrapper">
+          {(contextNode?.children ? contextMenusFold : contextMenus).map((item) => (
+            <div key={item.name} className="context-menu-item" onClick={item.onClick}>
+              {item.name}
+            </div>
+          ))}
+        </div>
+      )}
     </>
   )
 }
