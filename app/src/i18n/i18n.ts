@@ -274,5 +274,5 @@ const i18n = {
   },
 }
 const { antdLocale } = messages[currentLocale]
-
+console.log('%c antdLocale', 'background: pink; color: #000', antdLocale)
 export { i18n, antdLocale }

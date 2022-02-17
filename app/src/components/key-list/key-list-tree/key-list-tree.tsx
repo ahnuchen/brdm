@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react'
 import utils from '@/src/common/utils'
-import { Menu, Tree } from 'antd'
+import { Button, Menu, Tree } from 'antd'
 import { DataNode, EventDataNode } from 'rc-tree/lib/interface'
 import './key-list-tree.less'
 import { usePersistFn } from 'ahooks'
 import { $bus, EventTypes } from '@/src/common/emitter'
 import { RightClickMenu } from '@/src/components/key-list/right-click-menu'
-import { FolderFilled } from '@ant-design/icons'
+import { i18n } from '@/src/i18n/i18n'
 
 interface KeyListTreeProps {
   keyList: any[]
@@ -32,6 +32,8 @@ export function KeyListTree({ keyList, client, config }: KeyListTreeProps): JSX.
   })
 
   const onCheck = usePersistFn((checkedKeysValue: AnyObj, info: any) => {
+    console.log(info)
+    console.log(checkedKeysValue)
     setCheckedKeys(checkedKeysValue as React.Key[])
   })
 
@@ -87,6 +89,25 @@ export function KeyListTree({ keyList, client, config }: KeyListTreeProps): JSX.
 
   return (
     <ul className="tree-wrap">
+      {checkable && (
+        <div className="flex around">
+          <Button block size="small" danger type="primary">
+            {i18n.$t('Transfer.remove')}
+          </Button>
+          <Button
+            className="ml-8"
+            block
+            size="small"
+            type="primary"
+            onClick={() => {
+              setCheckable(false)
+              setCheckedKeys([])
+            }}
+          >
+            {i18n.$t('Modal.cancelText')}
+          </Button>
+        </div>
+      )}
       <Tree.DirectoryTree
         onRightClick={onRightClick}
         checkable={checkable}
@@ -102,7 +123,8 @@ export function KeyListTree({ keyList, client, config }: KeyListTreeProps): JSX.
       />
       <RightClickMenu
         setCheckable={setCheckable}
-        contextNode={contextNode}
+        contextNode={contextNode as DataNode}
+        client={client}
         contextMenuVisible={contextMenuVisible}
         setContextMenuVisible={setContextMenuVisible}
         cmLeft={cmLeft}
