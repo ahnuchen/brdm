@@ -40,7 +40,7 @@ export function RightClickMenu({
       },
     },
     {
-      name: 'delete',
+      name: i18n.$t('Transfer.remove'),
       onClick() {
         console.log('delete')
       },
@@ -69,9 +69,9 @@ export function RightClickMenu({
       },
     },
     {
-      name: i18n.$t('delete_all'),
+      name: i18n.$t('delete_folder'),
       onClick() {
-        console.log('delete_all')
+        console.log('delete_folder')
       },
     },
   ]
