@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import utils from '@/src/common/utils'
-import { Button, Menu, Modal, Table, Tag, Tree } from 'antd'
+import { Button, Menu, message, Modal, Table, Tag, Tree } from 'antd'
 import { DataNode, EventDataNode } from 'rc-tree/lib/interface'
 import './key-list-tree.less'
 import { usePersistFn, useToggle, useUpdateEffect } from 'ahooks'
@@ -13,6 +13,7 @@ interface KeyListTreeProps {
   client: IORedisClient
   config: ConnectionConfig
 }
+type ITreeNode = DataNode & { nameBuffer: any }
 
 export function KeyListTree({ keyList, client, config }: KeyListTreeProps): JSX.Element {
   const separator = config.separator === undefined ? ':' : config.separator
@@ -92,8 +93,47 @@ export function KeyListTree({ keyList, client, config }: KeyListTreeProps): JSX.
     setCheckedNodes([])
   }, [emptyChecked])
 
-  const showDelModal = () => {
-    const keysTobeDel = checkedNodes.filter((item) => item.isLeaf)
+  const delOneKey = (key: string) => {
+    console.log('%c key', 'background: pink; color: #000', key)
+    return new Promise((resolve, reject) => {
+      client
+        .del(key)
+        .then((reply) => {
+          console.log('reply', reply)
+          if (reply === 1) {
+            resolve(true)
+          } else {
+            reject(i18n.$t('delete_failed'))
+          }
+        })
+        .catch((e) => {
+          console.log('e.message', e.message)
+          reject(e.message)
+        })
+    })
+  }
+
+  const getAllLeafInContextNode = usePersistFn(() => {
+    const allnodes: ITreeNode[] = []
+    function getNodes(node: ITreeNode) {
+      if (node.isLeaf) {
+        allnodes.push(node)
+      } else if (node.children) {
+        // @ts-ignore
+        node.children.map(getNodes)
+      }
+    }
+    getNodes((contextNode as never) as ITreeNode)
+    return allnodes
+  })
+
+  const delFolder = usePersistFn(() => {
+    const nodes = getAllLeafInContextNode()
+    showDelModal(nodes)
+  })
+
+  const showDelModal = usePersistFn((keyNodes?: ITreeNode[]) => {
+    const keysTobeDel = keyNodes || checkedNodes.filter((item) => item.isLeaf)
     Modal.confirm({
       title: (
         <div>
@@ -113,16 +153,35 @@ export function KeyListTree({ keyList, client, config }: KeyListTreeProps): JSX.
         </ul>
       ),
       onOk() {
-        // client.hdel()
+        Promise.all(
+          keysTobeDel.map((item) => {
+            return delOneKey(utils.bufToString(Buffer.from(((item as never) as ITreeNode).nameBuffer.data)))
+          })
+        )
+          .then(() => {
+            message.success(i18n.$t('delete_success'))
+            $bus.emit(EventTypes.RefreshKeyList, client)
+          })
+          .catch((e) => {
+            message.error(e)
+          })
       },
     })
-  }
+  })
 
   return (
     <ul className="tree-wrap">
       {checkable && (
         <div className="flex around">
-          <Button block size="small" danger type="primary" onClick={showDelModal}>
+          <Button
+            block
+            size="small"
+            danger
+            type="primary"
+            onClick={() => {
+              showDelModal()
+            }}
+          >
             {i18n.$t('Transfer.remove')}
           </Button>
           <Button
@@ -153,6 +212,7 @@ export function KeyListTree({ keyList, client, config }: KeyListTreeProps): JSX.
         treeData={treeData}
       />
       <RightClickMenu
+        delFolder={delFolder}
         checkable={checkable}
         showDelModal={showDelModal}
         setCheckable={setCheckable}

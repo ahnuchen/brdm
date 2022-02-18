@@ -20,8 +20,8 @@ npm run dev
 - [x] set key content
 - [x] zset key content
 - [x] search key
-- [ ] key list tree contextmenu
-- [ ] multi delete operation
+- [x] key list tree contextmenu
+- [x] multi delete operation
 - [ ] SSH tunnel
 - [ ] change connection setting to localStorage
 - [ ] command line tab

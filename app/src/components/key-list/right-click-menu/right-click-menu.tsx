@@ -16,6 +16,7 @@ interface RightClickMenuProps {
   cmTop: number
   client: IORedisClient
   showDelModal: () => void
+  delFolder: () => void
 }
 
 export function RightClickMenu({
@@ -28,6 +29,7 @@ export function RightClickMenu({
   setContextMenuVisible,
   client,
   showDelModal,
+  delFolder,
 }: RightClickMenuProps): JSX.Element {
   useEffect(() => {
     if (contextMenuVisible) {
@@ -92,7 +94,7 @@ export function RightClickMenu({
     {
       name: i18n.$t('delete_folder'),
       onClick() {
-        console.log('delete_folder')
+        delFolder()
       },
     },
   ]
