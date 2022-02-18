@@ -9,11 +9,13 @@ type ITreeNode = DataNode & { nameBuffer: any }
 interface RightClickMenuProps {
   contextNode: DataNode | ITreeNode
   contextMenuVisible: boolean
+  checkable: boolean
   setContextMenuVisible: Dispatch<SetStateAction<boolean>>
   setCheckable: Dispatch<SetStateAction<boolean>>
   cmLeft: number
   cmTop: number
   client: IORedisClient
+  showDelModal: () => void
 }
 
 export function RightClickMenu({
@@ -21,9 +23,11 @@ export function RightClickMenu({
   contextNode,
   cmLeft,
   cmTop,
+  checkable,
   setCheckable,
   setContextMenuVisible,
   client,
+  showDelModal,
 }: RightClickMenuProps): JSX.Element {
   useEffect(() => {
     if (contextMenuVisible) {
@@ -47,6 +51,9 @@ export function RightClickMenu({
     {
       name: i18n.$t('Transfer.remove'),
       onClick() {
+        if (checkable) {
+          return showDelModal()
+        }
         const keyBuffer = Buffer.from((contextNode as ITreeNode).nameBuffer.data)
         client
           .del(keyBuffer)

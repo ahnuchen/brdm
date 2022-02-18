@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react'
 import utils from '@/src/common/utils'
-import { Button, Menu, Tree } from 'antd'
+import { Button, Menu, Modal, Table, Tag, Tree } from 'antd'
 import { DataNode, EventDataNode } from 'rc-tree/lib/interface'
 import './key-list-tree.less'
-import { usePersistFn } from 'ahooks'
+import { usePersistFn, useToggle, useUpdateEffect } from 'ahooks'
 import { $bus, EventTypes } from '@/src/common/emitter'
 import { RightClickMenu } from '@/src/components/key-list/right-click-menu'
 import { i18n } from '@/src/i18n/i18n'
@@ -26,14 +26,15 @@ export function KeyListTree({ keyList, client, config }: KeyListTreeProps): JSX.
   const [cmTop, setCmTop] = useState(0)
   const [contextNode, setContextNode] = useState<DataNode>()
   const [checkable, setCheckable] = useState(false)
+  const [emptyChecked, setEmpty] = useState(false)
+  const [checkedNodes, setCheckedNodes] = useState<DataNode[]>([])
 
   const onExpand = usePersistFn((expandedKeysValue: React.Key[]) => {
     setExpandedKeys(expandedKeysValue)
   })
 
   const onCheck = usePersistFn((checkedKeysValue: AnyObj, info: any) => {
-    console.log(info)
-    console.log(checkedKeysValue)
+    setCheckedNodes(info.checkedNodes)
     setCheckedKeys(checkedKeysValue as React.Key[])
   })
 
@@ -75,7 +76,6 @@ export function KeyListTree({ keyList, client, config }: KeyListTreeProps): JSX.
   })
 
   const onRightClick = usePersistFn((info: { event: React.MouseEvent; node: EventDataNode }) => {
-    console.log('info.node', info.node)
     setContextMenuVisible(true)
     setCmLeft(info.event.clientX)
     setCmTop(info.event.clientY)
@@ -87,11 +87,42 @@ export function KeyListTree({ keyList, client, config }: KeyListTreeProps): JSX.
     setTreeData(() => treeData as DataNode[])
   }, [keyList])
 
+  useUpdateEffect(() => {
+    setCheckable(false)
+    setCheckedNodes([])
+  }, [emptyChecked])
+
+  const showDelModal = () => {
+    const keysTobeDel = checkedNodes.filter((item) => item.isLeaf)
+    Modal.confirm({
+      title: (
+        <div>
+          {i18n.$t('keys_to_be_deleted')}
+          <Tag>Total: {keysTobeDel.length}</Tag>
+        </div>
+      ),
+      content: (
+        <ul>
+          <Table
+            scroll={{ y: 350 }}
+            size="small"
+            pagination={false}
+            dataSource={keysTobeDel}
+            columns={[{ dataIndex: 'title' }]}
+          />
+        </ul>
+      ),
+      onOk() {
+        // client.hdel()
+      },
+    })
+  }
+
   return (
     <ul className="tree-wrap">
       {checkable && (
         <div className="flex around">
-          <Button block size="small" danger type="primary">
+          <Button block size="small" danger type="primary" onClick={showDelModal}>
             {i18n.$t('Transfer.remove')}
           </Button>
           <Button
@@ -100,8 +131,8 @@ export function KeyListTree({ keyList, client, config }: KeyListTreeProps): JSX.
             size="small"
             type="primary"
             onClick={() => {
-              setCheckable(false)
               setCheckedKeys([])
+              setEmpty(!emptyChecked)
             }}
           >
             {i18n.$t('Modal.cancelText')}
@@ -122,6 +153,8 @@ export function KeyListTree({ keyList, client, config }: KeyListTreeProps): JSX.
         treeData={treeData}
       />
       <RightClickMenu
+        checkable={checkable}
+        showDelModal={showDelModal}
         setCheckable={setCheckable}
         contextNode={contextNode as DataNode}
         client={client}
