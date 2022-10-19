@@ -1,22 +1,27 @@
-import React, { forwardRef, Ref, useImperativeHandle, useState } from 'react'
+import React, { Dispatch, forwardRef, Ref, SetStateAction, useImperativeHandle, useState } from 'react'
 import { useMount, usePersistFn } from 'ahooks'
-import { Button, Checkbox, Divider, Form, Input, message, Modal, Row, Select } from 'antd'
+import { Button, Checkbox, Divider, Form, Input, message, Modal, Row, Select, Tooltip } from 'antd'
 import { encode } from '@msgpack/msgpack'
 import { $bus, EventTypes } from '@/src/common/emitter'
 import { PlusOutlined } from '@ant-design/icons'
 import { i18n } from '@/src/i18n/i18n'
 import { RedisKeyTypes } from '@/src/common/redisKeyTypes'
-import utils from '@/src/common/utils'
 
 interface OperateItemInnerProps {
   client: IORedisClient
+  opening: boolean
+  exactSearch: boolean
+  match: string
+  setExactSearch: Dispatch<SetStateAction<boolean>>
+  setMatch: Dispatch<SetStateAction<string>>
 }
 
-function OperateItemInner({ client }: OperateItemInnerProps, ref: Ref<any>): JSX.Element {
+function OperateItemInner(
+  { client, opening, exactSearch, match, setExactSearch, setMatch }: OperateItemInnerProps,
+  ref: Ref<any>
+): JSX.Element {
   const [dbs, setDbs] = useState<number[]>([0])
-  const [searchExact, setSearchExact] = useState(false)
   const [newKeyDialog, setnewKeyDialog] = useState(false)
-  const [searchMatch, setSearchMatch] = useState('')
   const [newKeyName, setNewKeyName] = useState('')
   const [selectedNewKeyType, setSelectedNewKeyType] = useState('string')
   const [selectedDbIndex, setSelectedDbIndex] = useState(0)
@@ -65,8 +70,8 @@ function OperateItemInner({ client }: OperateItemInnerProps, ref: Ref<any>): JSX
   const resetStatus = usePersistFn(() => {
     setDbs([0])
     setSelectedDbIndex(0)
-    setSearchMatch('')
-    setSearchExact(false)
+    setMatch('')
+    setExactSearch(false)
   })
 
   const changeDb = (dbIndex: number) => {
@@ -140,6 +145,12 @@ function OperateItemInner({ client }: OperateItemInnerProps, ref: Ref<any>): JSX
     }
   })
 
+  const changeMatchMode = usePersistFn(() => {
+    if (!opening) {
+      $bus.emit(EventTypes.RefreshKeyList, client)
+    }
+  })
+
   useImperativeHandle(ref, () => ({
     initShow,
   }))
@@ -165,10 +176,22 @@ function OperateItemInner({ client }: OperateItemInnerProps, ref: Ref<any>): JSX
         </Select>
         <Button className="flex-1" onClick={() => setnewKeyDialog(true)}>
           <PlusOutlined />
-          {i18n.$t('add_new_key')}{' '}
+          {i18n.$t('add_new_key')}
         </Button>
       </Row>
-      <Input.Search placeholder={i18n.$t('enter_to_search')} addonAfter={<Checkbox />} />
+      <Input.Search
+        onPressEnter={changeMatchMode}
+        onSearch={changeMatchMode}
+        style={{ marginTop: 4 }}
+        onChange={(e) => setMatch(e.currentTarget.value)}
+        placeholder={i18n.$t('enter_to_search')}
+        loading={opening}
+        suffix={
+          <Tooltip title={i18n.$t('exact_search')}>
+            <Checkbox onChange={(e) => setExactSearch(e.target.checked)} checked={exactSearch} />
+          </Tooltip>
+        }
+      />
       <Modal
         destroyOnClose={true}
         title={i18n.$t('add_new_key')}

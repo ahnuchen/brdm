@@ -18,6 +18,8 @@ export function ConnectionWrapper({ config }: ConnectionWrapperProps): JSX.Eleme
   const [opening, setOpening] = useState(false)
   const [client, setClient] = useState<IORedisClient | null>(null)
   const [activeKeys, setActiveKeys] = useState<string[]>([])
+  const [exactSearch, setExactSearch] = useState(false)
+  const [match, setMatch] = useState('')
 
   const closeMenu = usePersistFn(() => {
     setActiveKeys([])
@@ -135,14 +137,14 @@ export function ConnectionWrapper({ config }: ConnectionWrapperProps): JSX.Eleme
     openConnection({
       connectionName: 'common',
       callback(client: IORedisClient) {
-        $bus.emit(EventTypes.ClickedKey, client, 'a:1hash', false)
+        $bus.emit(EventTypes.ClickedKey, client, 'a', false)
       },
     })
   }
 
   useMount(() => {
     $bus.on(EventTypes.CloseConnection, closeConnection)
-    // openDefaultKey()
+    openDefaultKey()
   })
 
   return (
@@ -164,9 +166,24 @@ export function ConnectionWrapper({ config }: ConnectionWrapperProps): JSX.Eleme
         key={config.connectionName}
         header={config.connectionName}
       >
-        <OperateItem client={client as IORedisClient} ref={operateItemRef} />
+        <OperateItem
+          exactSearch={exactSearch}
+          match={match}
+          setExactSearch={setExactSearch}
+          setMatch={setMatch}
+          opening={opening}
+          client={client as IORedisClient}
+          ref={operateItemRef}
+        />
         {client && (
-          <KeyList setOpening={setOpening} config={config} client={client as IORedisClient} ref={keyListRef} />
+          <KeyList
+            exactSearch={exactSearch}
+            match={match}
+            setOpening={setOpening}
+            config={config}
+            client={client as IORedisClient}
+            ref={keyListRef}
+          />
         )}
       </Collapse.Panel>
     </Collapse>
