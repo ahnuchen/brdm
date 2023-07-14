@@ -2,6 +2,7 @@ import React, { forwardRef, Ref, useImperativeHandle, useRef, useState } from 'r
 import { useMount, usePersistFn, useSelections } from 'ahooks'
 import { Button, Collapse } from 'antd'
 import { ConnectionWrapper } from '@/src/components/connections/connection-wrapper'
+import { $bus, EventTypes } from '@/src/common/emitter'
 
 const ConnectionsInner = (props: any, ref: Ref<any>): JSX.Element => {
   const [connections, setConnections] = useState<ConnectionConfig[]>([])
@@ -18,8 +19,8 @@ const ConnectionsInner = (props: any, ref: Ref<any>): JSX.Element => {
   })
 
   useMount(() => {
-    $tools.$bus.on($tools.EventTypes.RefreshConnection, initConnection)
-    $tools.$bus.on($tools.EventTypes.CloseConnection, initConnection)
+    $bus.on(EventTypes.RefreshConnection, initConnection)
+    $bus.on(EventTypes.CloseConnection, initConnection)
     initConnection()
   })
 

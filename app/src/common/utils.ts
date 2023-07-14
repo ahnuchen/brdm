@@ -1,3 +1,6 @@
+import { unserialize } from 'php-serialize'
+import { decode } from '@msgpack/msgpack'
+
 type StringBuffer = string | Buffer
 
 export default {
@@ -27,10 +30,6 @@ export default {
     return buf.equals(Buffer.from(buf.toString()))
   },
   bufToString(buf: StringBuffer, forceHex = false) {
-    // if (typeof buf == 'string') {
-    //   return buf;
-    // }
-
     if (!Buffer.isBuffer(buf)) {
       return buf
     }
@@ -86,6 +85,21 @@ export default {
 
     return false
   },
+  isMsgpack(str: any) {
+    try {
+      const decoded = decode(str)
+      return !!decoded && typeof decoded === 'object'
+    } catch (e) {}
+    return false
+  },
+  isPHPSerialize(str: StringBuffer) {
+    try {
+      unserialize(str)
+      return true
+    } catch (e) {}
+
+    return false
+  },
   base64Encode(str: string) {
     return new Buffer(str, 'utf8').toString('base64')
   },
@@ -113,13 +127,15 @@ export default {
   },
   keysToList(keys: Buffer[]) {
     return keys.map((key) => {
+      const name = this.bufToString(key)
       return {
-        name: this.bufToString(key),
+        key: name,
+        title: name,
         nameBuffer: key.toJSON(),
       }
     })
   },
-  keysToTree(keys: Buffer[], separator = ':', openStatus = {}) {
+  keysToTree(keys: Buffer[], separator = ':') {
     const tree = {}
     keys.forEach((key) => {
       let currentNode = tree
@@ -144,23 +160,27 @@ export default {
       })
     })
 
-    return this.formatTreeData(tree, '', openStatus, separator)
+    return this.formatTreeData(tree, '', separator)
   },
-  formatTreeData(tree: AnyObj, previousKey = '', openStatus = {}, separator = ':') {
-    return Object.keys(tree).map((key) => {
+  formatTreeData(tree: AnyObj, previousKey = '', separator = ':') {
+    return Object.entries(tree).map(([key, value]) => {
       const node: AnyObj = { name: key }
 
-      if (!tree[key].keyNode && Object.keys(tree[key]).length > 0) {
+      if (!value.keyNode && Object.keys(value).length > 0) {
         const tillNowKeyName = previousKey + key + separator
-        node.open = !!openStatus[tillNowKeyName]
-        node.children = this.formatTreeData(tree[key], tillNowKeyName, openStatus, separator)
+        node.children = this.formatTreeData(value, tillNowKeyName, separator)
         // keep folder node in top of the tree(not include the outest list)
-        this.sortNodes(node.children)
+        // this.sortNodes(node.children)
         node.keyCount = node.children.reduce((a: AnyObj, b: AnyObj) => a + (b.keyCount || 0), 0)
         node.fullName = tillNowKeyName
+        node.key = tillNowKeyName + '`_folder`'
+        node.title = `(${node.keyCount}) ${key}`
       } else {
         node.keyCount = 1
         node.name = key.replace(/`k`$/, '')
+        node.key = node.name
+        node.title = node.name
+        node.isLeaf = true
         node.nameBuffer = tree[key].nameBuffer.toJSON()
       }
 
@@ -179,5 +199,15 @@ export default {
   },
   copyObject(obj: AnyObj) {
     return JSON.parse(JSON.stringify(obj))
+  },
+  randomString(len = 32) {
+    const $chars =
+      'ABCDEFGHJKMNPQRSTWXYZabcdefhijkmnprstwxyz2345678' /****默认去掉了容易混淆的字符oOLl,9gq,Vv,Uu,I1****/
+    const maxPos = $chars.length
+    let pwd = ''
+    for (let i = 0; i < len; i++) {
+      pwd += $chars.charAt(Math.floor(Math.random() * maxPos))
+    }
+    return pwd
   },
 }

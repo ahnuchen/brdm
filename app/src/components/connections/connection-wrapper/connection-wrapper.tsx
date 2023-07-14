@@ -5,6 +5,8 @@ import { KeyList } from '@/src/components/key-list'
 import { useMount, usePersistFn } from 'ahooks'
 import redisClient from '@/src/common/redisClient'
 import { Collapse, message } from 'antd'
+import { RightOutlined, LoadingOutlined } from '@ant-design/icons'
+import { $bus, EventTypes } from '@/src/common/emitter'
 
 interface ConnectionWrapperProps {
   config: ConnectionConfig
@@ -13,9 +15,11 @@ interface ConnectionWrapperProps {
 export function ConnectionWrapper({ config }: ConnectionWrapperProps): JSX.Element {
   const operateItemRef = useRef<any>()
   const keyListRef = useRef<any>()
-  const [opening, setOpening] = useState(true)
+  const [opening, setOpening] = useState(false)
   const [client, setClient] = useState<IORedisClient | null>(null)
   const [activeKeys, setActiveKeys] = useState<string[]>([])
+  const [exactSearch, setExactSearch] = useState(false)
+  const [match, setMatch] = useState('')
 
   const closeMenu = usePersistFn(() => {
     setActiveKeys([])
@@ -29,7 +33,7 @@ export function ConnectionWrapper({ config }: ConnectionWrapperProps): JSX.Eleme
     closeMenu()
 
     // TODO close all tab after close connection
-    // $tools.$bus.emit($tools.EventTypes.RemoveAllTab)
+    // $bus.emit(EventTypes.RemoveAllTab)
 
     // TODO reset operateItem items
     // operateItemRef.current.resetStatus()
@@ -41,23 +45,24 @@ export function ConnectionWrapper({ config }: ConnectionWrapperProps): JSX.Eleme
   })
 
   const initShow = usePersistFn(() => {
-    if (operateItemRef.current && keyListRef.current) {
-      operateItemRef.current.initShow()
-      keyListRef.current.initShow()
-    } else {
-      const t = setTimeout(() => {
-        operateItemRef.current.initShow()
-        keyListRef.current.initShow()
-        clearTimeout(t)
-      }, 300)
-    }
+    operateItemRef.current.initShow()
+    keyListRef.current.initShow()
+    /*    let count = 0
+    while (count++ < 99) {
+      client?.set(`a:${randomString(10)}`, randomString(10))
+      client?.set(`a:a:${randomString(10)}`, randomString(10))
+      client?.set(`a:b:${randomString(10)}`, randomString(10))
+      client?.set(`a:b:c:${randomString(10)}`, randomString(10))
+      client?.set(`b:c:${randomString(10)}`, randomString(10))
+      client?.set(`b:c:e:${randomString(10)}`, randomString(10))
+      client?.set(`b:d:${randomString(10)}`, randomString(10))
+    }*/
   })
 
   const openConnection = usePersistFn(({ connectionName, callback }) => {
     if (connectionName && connectionName !== config.connectionName) {
       return
     }
-    setOpening(true)
     if (client) {
       afterOpenConnection(client)
     } else {
@@ -74,14 +79,13 @@ export function ConnectionWrapper({ config }: ConnectionWrapperProps): JSX.Eleme
   const afterOpenConnection = usePersistFn((client: IORedisClient, callback?) => {
     if (client.status !== 'ready') {
       client.on('ready', () => {
-        $tools.$bus.emit('openStatus', { client, connectionName: config.connectionName })
+        $bus.emit(EventTypes.OpenStatus, client, config.connectionName)
         initShow()
-        console.log('%c client', 'background: pink; color: #000', client, callback)
-        callback && callback()
+        callback && callback(client)
       })
     } else {
       initShow()
-      callback && callback()
+      callback && callback(client)
     }
   })
 
@@ -103,10 +107,7 @@ export function ConnectionWrapper({ config }: ConnectionWrapperProps): JSX.Eleme
       .then((client) => {
         setClient(client)
         client.on('error', (error) => {
-          message.error({
-            content: 'Redis Client On Error: ' + error + ' Config right?',
-            duration: 3000,
-          })
+          message.error('Redis Client On Error: ' + error + ' Config right?', 3)
           closeConnection(config.connectionName)
         })
       })
@@ -120,27 +121,70 @@ export function ConnectionWrapper({ config }: ConnectionWrapperProps): JSX.Eleme
   const onCollapseChange = usePersistFn((keys) => {
     setActiveKeys(keys)
 
-    // open collapse
-    if (keys.length > 0) {
+    // open collapse, judge of client to prevent scan keys after first open,
+    // user can use refresh button to rescan
+    if (keys.length > 0 && !client) {
       openConnection({
         connectionName: config.connectionName,
       })
     }
   })
 
+  const openDefaultKey = () => {
+    //TODO 默认打开一个key/status， 方便开发调试，开发完应该删掉此处
+
+    setActiveKeys(['common'])
+    openConnection({
+      connectionName: 'common',
+      callback(client: IORedisClient) {
+        $bus.emit(EventTypes.ClickedKey, client, 'a', false)
+      },
+    })
+  }
+
   useMount(() => {
-    $tools.$bus.on($tools.EventTypes.CloseConnection, closeConnection)
+    $bus.on(EventTypes.CloseConnection, closeConnection)
+    openDefaultKey()
   })
 
   return (
-    <Collapse activeKey={activeKeys} onChange={onCollapseChange}>
+    <Collapse
+      expandIcon={({ isActive }) =>
+        opening ? <LoadingOutlined /> : <RightOutlined rotate={isActive ? 90 : 0} />
+      }
+      activeKey={activeKeys}
+      onChange={onCollapseChange}
+    >
       <Collapse.Panel
-        extra={<ConnectionMenu config={config} />}
+        extra={
+          <ConnectionMenu
+            onCollapseChange={onCollapseChange}
+            config={config}
+            client={client as IORedisClient}
+          />
+        }
         key={config.connectionName}
         header={config.connectionName}
       >
-        <OperateItem ref={operateItemRef} />
-        <KeyList config={config} client={client as IORedisClient} ref={keyListRef} />
+        <OperateItem
+          exactSearch={exactSearch}
+          match={match}
+          setExactSearch={setExactSearch}
+          setMatch={setMatch}
+          opening={opening}
+          client={client as IORedisClient}
+          ref={operateItemRef}
+        />
+        {client && (
+          <KeyList
+            exactSearch={exactSearch}
+            match={match}
+            setOpening={setOpening}
+            config={config}
+            client={client as IORedisClient}
+            ref={keyListRef}
+          />
+        )}
       </Collapse.Panel>
     </Collapse>
   )

@@ -1,0 +1,31 @@
+
+.context-menu-wrapper {
+  position: fixed;
+  z-index: 2;
+  display: inline-flex;
+  flex-direction: column;
+  background-color: #fff;
+  border: 1px solid #dedede;
+  border-radius: 5px;
+}
+
+.context-menu-item {
+  display: inline-block;
+  text-align: center;
+  padding: 0 10px;
+  height: 30px;
+  line-height: 30px;
+  color: #666666;
+  font-size: 14px;
+  border-bottom: 1px solid #dedede;
+  cursor: pointer;
+
+  &:last-child {
+    border-bottom: none;
+  }
+
+  &:hover {
+    background-color: #999999;
+    color: #ffffff;
+  }
+}

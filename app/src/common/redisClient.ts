@@ -4,6 +4,7 @@ import { remote } from 'electron'
 import { message } from 'antd'
 import { i18n } from '@/src/i18n/i18n'
 import { AddressInfo } from 'net'
+import { $bus, EventTypes } from '@/src/common/emitter'
 const fs = require('fs')
 
 // fix ioredis hgetall key has been toString()
@@ -86,20 +87,24 @@ class RedisClient {
       dstHost: host,
       dstPort: port,
       localHost: '127.0.0.1',
-      localPort: -1, // set null to use available port in local machine
+      //@ts-ignore
+      localPort: null, // set null to use available port in local machine
       privateKey: this.getFileContent(sshOptions.privatekey, sshOptions.privatekeybookmark),
       passphrase: sshOptions.passphrase ? sshOptions.passphrase : undefined,
       keepaliveInterval: 10000,
     }
 
+    console.log('%c sshConfig', 'background: pink; color: #000', sshConfig)
+
     const sshConfigRaw = JSON.parse(JSON.stringify(sshConfig))
 
     const sshPromise = new Promise((resolve, reject) => {
       const server = tunnelssh(sshConfig, (error, server) => {
+        console.log('%c tunnelssh', 'background: pink; color: #000', { error }, { server })
         // ssh error only on this, not the 'error' argument...
         server.on('error', (error) => {
           message.error(error.message + ' SSH config right?')
-          $tools.$bus.emit($tools.EventTypes.CloseConnection)
+          $bus.emit(EventTypes.CloseConnection)
           // return reject(error);
         })
 
@@ -109,6 +114,7 @@ class RedisClient {
 
         const listenAddress = server.address() as AddressInfo
 
+        console.log('%c listenAddress', 'background: black; color: white', listenAddress)
         // ssh standalone IORedis
         if (!config.cluster) {
           // @ts-ignore
@@ -282,7 +288,7 @@ class RedisClient {
 
     if (times >= maxRetryTimes) {
       message.error('Too Many Attempts To Reconnect. Please Check The Server Status!')
-      $tools.$bus.emit($tools.EventTypes.CloseConnection)
+      $bus.emit(EventTypes.CloseConnection)
       return
     }
 
@@ -310,7 +316,7 @@ class RedisClient {
     } catch (e) {
       // force alert
       alert(i18n.$t('key_no_permission') + `\n[${e.message}]`)
-      $tools.$bus.emit($tools.EventTypes.CloseConnection)
+      $bus.emit(EventTypes.CloseConnection)
 
       return undefined
     }

@@ -22,8 +22,6 @@ class Storage {
 
   editConnectionByKey(connection: ConnectionConfig, oldKey = ''): void {
     const editedKey = connection.key || oldKey
-
-    debugger
     const connections = this.getConnections()
     this.updateConnectionName(connection, omit(connections, editedKey))
     const newKey = this.getConnectionKey(connection, true)
@@ -64,6 +62,7 @@ class Storage {
     return connection.name || `${connection.host}@${connection.port}`
   }
 
+  // TODO must use crypto to encode password !
   setConnections(connections: ConnectionSettings): void {
     $tools.settings.connSettings.setAll(connections)
   }

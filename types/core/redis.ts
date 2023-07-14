@@ -28,4 +28,9 @@ declare global {
     clusterMode?: boolean
   }
   type IORedisClient = IORedis.Redis | IORedis.Cluster
+  type RedisKeyType = 'string' | 'hash' | 'set' | 'list' | 'zset' | 'stream'
+
+  interface ForwardRefProps {
+    initShow(): void
+  }
 }
